@@ -13,7 +13,7 @@ public class Timesheet {
 	private long id; /*ID do Projeto*/
 	
 	@Column
-	private String key; /*Chave da Atividade*/
+	private String keyMap; /*Chave da Atividade*/
 	
 	@Column
 	private String title; /*Descrição da Atividade*/
@@ -39,11 +39,11 @@ public class Timesheet {
 	}
 
 	public String getKey() {
-		return key;
+		return keyMap;
 	}
 
 	public void setKey(String key) {
-		this.key = key;
+		this.keyMap = key;
 	}
 
 	public String getTitle() {
