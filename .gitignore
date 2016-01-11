@@ -1,0 +1,12 @@
+# Ignoring all files that ends with the following extensions #
+*.jar
+*.war
+*.ear
+*.class
+*.DS_Store
+*.classpath
+*.settings/
+/bin/
+/target/
+
+/build
