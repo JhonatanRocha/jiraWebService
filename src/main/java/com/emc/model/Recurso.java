@@ -6,6 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Column;
 
+/**
+ * 
+ * @author Jhonatan Rocha
+ *
+ */
+
 @Entity
 public class Recurso {
 
