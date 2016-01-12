@@ -1,4 +1,4 @@
-package com.emc.dao;
+package com.emc.test;
 
 import java.util.List;
 
@@ -9,85 +9,51 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.emc.model.Atividade;
+import com.emc.model.Timesheet;
 
 /**
  * 
  * @author Jhonatan Rocha
  *
  */
-public class AtividadeDAO {
+public class TimesheetDAO {
 
-	/**
-	 * 
-	 * @param atividade
-	 */
-	public void insert(Atividade atividade) {
+	public void insert(Timesheet timesheet) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
 		em.getTransaction().begin();
-		em.persist(atividade);
+		em.persist(timesheet);
 		em.getTransaction().commit();
 		em.close();
 		factory.close();
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public List<Atividade> listAll(){
+	public List<Timesheet> listAll(){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<Atividade> query = builder.createQuery(Atividade.class);
-	    Root<Atividade> root = query.from(Atividade.class);
+	    CriteriaQuery<Timesheet> query = builder.createQuery(Timesheet.class);
+	    Root<Timesheet> root = query.from(Timesheet.class);
 	    query.select(root);
 
 	    return em.createQuery(query).getResultList();
 	}
 	
-	/**
-	 * 
-	 * @param atividade 
-	 * 
-	 */
-	public void update(Atividade atividade) {
+	public void update(Timesheet timesheet) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		atividade = em.find(Atividade.class, atividade.getId()); //(Classe, ID)
+		timesheet = em.find(Timesheet.class, timesheet.getId()); //(Classe, ID)
 		em.getTransaction().begin();
 		em.getTransaction().commit();
 		em.close();
 	}
 	
-	/**
-	 * 
-	 * @param id
-	 */
-	public void removeById(Long id){
+	public Timesheet getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		Atividade atividade = em.find(Atividade.class, id); //(Classe, ID)
-		em.getTransaction().begin();
-		em.remove(atividade);
-		em.getTransaction().commit();
-		em.close();
-		factory.close();
-	}
-	
-	/**
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public Atividade getById(Long id){
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
-		EntityManager em = factory.createEntityManager();
-		
-		return em.find(Atividade.class, id); //(Classe, ID)
+		return em.find(Timesheet.class, id); //(Classe, ID)
 	}
 }

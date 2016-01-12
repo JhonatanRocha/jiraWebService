@@ -16,7 +16,7 @@ import javax.persistence.Column;
 public class Recurso {
 
 	@Id
-	private String id; /*ID do Recurso*/
+	private long id; /*ID do Recurso*/
 	
 	@Column
 	private String userName; /*Nome do Recurso*/
@@ -33,11 +33,25 @@ public class Recurso {
 	@Column
 	private String status; /*Status do Recurso*/
 	
-	public String getId() {
+	public Recurso() {
+
+	}
+	
+	public Recurso(Long id, String userName, String fullName,
+			Date dataInicio, Date dataFinal, String status) {
+		this.id = id;
+		this.userName = userName;
+		this.fullName = fullName;
+		this.dataInicio = dataInicio;
+		this.dataFinal = dataFinal;
+		this.status = status;
+	}
+
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

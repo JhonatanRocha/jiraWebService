@@ -36,6 +36,21 @@ public class Timesheet {
 	@Column
 	private String comment; /*Comentários*/
 
+	public Timesheet() {
+
+	}
+
+	public Timesheet(long id, String keyMap, String title, Date date,
+			String userName, Date timeSpent, String comment) {
+		this.id = id;
+		this.keyMap = keyMap;
+		this.title = title;
+		this.date = date;
+		this.userName = userName;
+		this.timeSpent = timeSpent;
+		this.comment = comment;
+	}
+
 	public long getId() {
 		return id;
 	}

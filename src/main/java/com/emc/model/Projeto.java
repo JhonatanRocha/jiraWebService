@@ -24,7 +24,16 @@ public class Projeto {
 	@Column
 	private Date dataCreate; /*Data da Criação*/
 
+	public Projeto() {
+		
+	}
 	
+	public Projeto(long id, String project, Date dataCreate) {
+		this.id = id;
+		this.project = project;
+		this.dataCreate = dataCreate;
+	}
+
 	public long getId() {
 		return id;
 	}

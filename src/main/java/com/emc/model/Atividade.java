@@ -69,6 +69,36 @@ public class Atividade {
 	@Column
 	private Date dueDate; /*Datas Prevista finalização*/
 
+	
+	public Atividade() {
+
+	}
+	
+	public Atividade(long id, String keyMap, String summary, String issueType,
+			Date created, String resolution, Date resolved, Date updated,
+			String assigned, String status, String originalEstimate,
+			Date timeSpent, Date remainingEstimate, String workRatio,
+			String sprint, String creator, String progress, Date dueDate) {
+		this.id = id;
+		this.keyMap = keyMap;
+		this.summary = summary;
+		this.issueType = issueType;
+		this.created = created;
+		this.resolution = resolution;
+		this.resolved = resolved;
+		this.updated = updated;
+		this.assigned = assigned;
+		this.status = status;
+		this.originalEstimate = originalEstimate;
+		this.timeSpent = timeSpent;
+		this.remainingEstimate = remainingEstimate;
+		this.workRatio = workRatio;
+		this.sprint = sprint;
+		this.creator = creator;
+		this.progress = progress;
+		this.dueDate = dueDate;
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -153,6 +183,14 @@ public class Atividade {
 		return originalEstimate;
 	}
 
+	public Date getTimeSpent() {
+		return timeSpent;
+	}
+	
+	public void setTimeSpent(Date timeSpent) {
+		this.timeSpent = timeSpent;
+	}
+	
 	public void setOriginalEstimate(String originalEstimate) {
 		this.originalEstimate = originalEstimate;
 	}
