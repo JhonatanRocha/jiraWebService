@@ -65,7 +65,23 @@ public class ProjetoDAO {
 	/**
 	 * 
 	 * @param id
-	 * @return
+	 */
+	public void removeById(Long id) {
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
+		EntityManager em = factory.createEntityManager();
+		
+		Projeto projeto = em.find(Projeto.class, id); //(Classe, ID)
+		em.getTransaction().begin();
+		em.remove(projeto);
+		em.getTransaction().commit();
+		em.close();
+		factory.close();
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return Um objeto Projeto
 	 */
 	public Projeto getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");

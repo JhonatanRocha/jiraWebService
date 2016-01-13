@@ -21,6 +21,7 @@ public class Timesheet {
 	@Column
 	private String keyMap; /*Chave da Atividade*/
 	
+
 	@Column
 	private String title; /*Descrição da Atividade*/
 	
@@ -91,6 +92,14 @@ public class Timesheet {
 		this.userName = userName;
 	}
 
+	public Date getTimeSpent() {
+		return timeSpent;
+	}
+	
+	public void setTimeSpent(Date timeSpent) {
+		this.timeSpent = timeSpent;
+	}
+	
 	public String getComment() {
 		return comment;
 	}

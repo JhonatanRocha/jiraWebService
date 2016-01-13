@@ -1,16 +1,16 @@
 package com.emc.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
+import org.joda.time.DateTime;
 import org.junit.Test;
 
+import com.emc.dao.ProjetoDAO;
 import com.emc.model.Projeto;
 
 /**
@@ -20,37 +20,72 @@ import com.emc.model.Projeto;
  */
 public class ProjetoDAOTest {
 
+	private static final long ID = 1l;
+	private static final String NOME_PROJETO = "Integração WebService JIRA";
+	private static final Date DATA_CORRENTE = DateTime.now().toDate();
+	
+	Projeto projeto = new Projeto(ID, NOME_PROJETO, DATA_CORRENTE);
+	
+	ProjetoDAO projetoDAO = new ProjetoDAO();
 
 	@Test
 	public void insert() {
-
+		projetoDAO.insert(projeto);
+		Projeto persistedProjeto = projetoDAO.getById(ID);
+		projetoDAO.removeById(ID);
+		
+		assertEquals(projeto.getId(), persistedProjeto.getId());
+		assertEquals(projeto.getProject(), persistedProjeto.getProject());
+		//assertEquals(projeto.getDataCreate(), persistedProjeto.getDataCreate());
 	}
 	
-	public List<Projeto> listAll(){
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
-		EntityManager em = factory.createEntityManager();
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<Projeto> query = builder.createQuery(Projeto.class);
-	    Root<Projeto> root = query.from(Projeto.class);
-	    query.select(root);
-
-	    return em.createQuery(query).getResultList();
+	@Test
+	public void listAll(){
+		projetoDAO.insert(projeto);
+		List<Projeto> listProjeto = projetoDAO.listAll();
+		projetoDAO.removeById(ID);
+		
+		if(listProjeto.size() == 1){
+			for (Projeto persistedProjeto : listProjeto) {
+				assertEquals(projeto.getId(), persistedProjeto.getId());
+				assertEquals(projeto.getProject(), persistedProjeto.getProject());
+				//assertEquals(projeto.getDataCreate(), persistedProjeto.getDataCreate());
+			}
+		}
 	}
 	
-	public void update(Projeto projeto) {
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
-		EntityManager em = factory.createEntityManager();
+	@Test
+	public void update() {
+		String newProjectName = "Project Test";
 		
-		projeto = em.find(Projeto.class, projeto.getId()); //(Classe, ID)
-		em.getTransaction().begin();
-		em.getTransaction().commit();
-		em.close();
+		projetoDAO.insert(projeto);
+		projeto.setProject(newProjectName);
+		projetoDAO.update(projeto);
+		Projeto persistedProjeto = projetoDAO.getById(ID);
+		projetoDAO.removeById(ID);
+		
+		assertEquals(projeto.getId(), persistedProjeto.getId());
+		assertNotSame(projeto.getProject(), persistedProjeto.getProject());
+		//assertEquals(projeto.getDataCreate(), persistedProjeto.getDataCreate());
+	}
+	
+	@Test
+	public void removeById() {
+		projetoDAO.insert(projeto);
+		projetoDAO.removeById(ID);
+		Projeto persistedProjeto = projetoDAO.getById(ID);
+		
+		assertTrue(persistedProjeto == null);
 	}
 
-	public Projeto getById(Long id){
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
-		EntityManager em = factory.createEntityManager();
+	@Test
+	public void getById(){
+		projetoDAO.insert(projeto);
+		Projeto persistedProjeto = projetoDAO.getById(ID);
+		projetoDAO.removeById(ID);
 		
-		return em.find(Projeto.class, id); //(Classe, ID)
+		assertEquals(projeto.getId(), persistedProjeto.getId());
+		assertEquals(projeto.getProject(), persistedProjeto.getProject());
+		//assertEquals(projeto.getDataCreate(), persistedProjeto.getDataCreate());
 	}
 }

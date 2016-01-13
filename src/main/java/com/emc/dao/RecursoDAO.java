@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import com.emc.model.Projeto;
 import com.emc.model.Recurso;
 
 /**
@@ -65,7 +66,23 @@ public class RecursoDAO {
 	/**
 	 * 
 	 * @param id
-	 * @return
+	 */
+	public void removeById(Long id) {
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
+		EntityManager em = factory.createEntityManager();
+		
+		Recurso recurso = em.find(Recurso.class, id); //(Classe, ID)
+		em.getTransaction().begin();
+		em.remove(recurso);
+		em.getTransaction().commit();
+		em.close();
+		factory.close();
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return Um objeto Recurso
 	 */
 	public Recurso getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
