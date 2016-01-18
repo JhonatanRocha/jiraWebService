@@ -3,10 +3,10 @@
 	xmlns="http://java.sun.com/xml/ns/persistence">
 	<persistence-unit name="jiraextraction">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<class>com.emc.model.Atividade</class>
-		<class>com.emc.model.Projeto</class>
-		<class>com.emc.model.Recurso</class>
-		<class>com.emc.model.Timesheet</class>
+		<class>com.jiraservice.model.Activity</class>
+		<class>com.jiraservice.model.Project</class>
+		<class>com.jiraservice.model.Resource</class>
+		<class>com.jiraservice.model.Timesheet</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 			<property name="hibernate.hbm2ddl.auto" value="update" />

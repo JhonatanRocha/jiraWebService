@@ -1,4 +1,4 @@
-package com.emc.model;
+package com.jiraservice.model;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ import javax.persistence.Column;
  */
 
 @Entity
-public class Recurso {
+public class Resource {
 
 	@Id
 	private long id; /*ID do Recurso*/
@@ -33,11 +33,11 @@ public class Recurso {
 	@Column
 	private String status; /*Status do Recurso*/
 	
-	public Recurso() {
+	public Resource() {
 
 	}
 	
-	public Recurso(Long id, String userName, String fullName,
+	public Resource(Long id, String userName, String fullName,
 			Date dataInicio, Date dataFinal, String status) {
 		this.id = id;
 		this.userName = userName;

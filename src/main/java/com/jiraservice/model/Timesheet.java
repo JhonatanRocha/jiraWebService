@@ -1,4 +1,4 @@
-package com.emc.model;
+package com.jiraservice.model;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package com.emc.test;
+package com.jiraservice.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,7 +7,7 @@ import java.util.Date;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.emc.model.Timesheet;
+import com.jiraservice.model.Timesheet;
 
 
 /**

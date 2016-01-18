@@ -1,4 +1,4 @@
-package com.emc.model;
+package com.jiraservice.model;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ import javax.persistence.Column;
  */
 
 @Entity
-public class Projeto {
+public class Project {
 
 	@Id
 	private long id; /*ID do Projeto*/
@@ -24,11 +24,11 @@ public class Projeto {
 	@Column
 	private Date dataCreate; /*Data da Criação*/
 
-	public Projeto() {
+	public Project() {
 		
 	}
 	
-	public Projeto(long id, String project, Date dataCreate) {
+	public Project(long id, String project, Date dataCreate) {
 		this.id = id;
 		this.project = project;
 		this.dataCreate = dataCreate;

@@ -1,4 +1,4 @@
-package com.emc.dao;
+package com.jiraservice.dao;
 
 import java.util.List;
 
@@ -9,20 +9,20 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.emc.model.Recurso;
+import com.jiraservice.model.Resource;
 
 /**
  * 
  * @author Jhonatan Rocha
  *
  */
-public class RecursoDAO {
+public class ResourceDAO {
 
 	/**
 	 * 
 	 * @param recurso
 	 */
-	public void insert(Recurso recurso) {
+	public void insert(Resource recurso) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
@@ -37,12 +37,12 @@ public class RecursoDAO {
 	 * 
 	 * @return
 	 */
-	public List<Recurso> listAll(){
+	public List<Resource> listAll(){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<Recurso> query = builder.createQuery(Recurso.class);
-	    Root<Recurso> root = query.from(Recurso.class);
+	    CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
+	    Root<Resource> root = query.from(Resource.class);
 	    query.select(root);
 
 	    return em.createQuery(query).getResultList();
@@ -50,13 +50,13 @@ public class RecursoDAO {
 	
 	/**
 	 * 
-	 * @param recurso
+	 * @param resource
 	 */
-	public void update(Recurso recurso) {
+	public void update(Resource resource) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		recurso = em.find(Recurso.class, recurso.getId()); //(Classe, ID)
+		resource = em.find(Resource.class, resource.getId()); //(Classe, ID)
 		em.getTransaction().begin();
 		em.getTransaction().commit();
 		em.close();
@@ -70,9 +70,9 @@ public class RecursoDAO {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		Recurso recurso = em.find(Recurso.class, id); //(Classe, ID)
+		Resource resource = em.find(Resource.class, id); //(Classe, ID)
 		em.getTransaction().begin();
-		em.remove(recurso);
+		em.remove(resource);
 		em.getTransaction().commit();
 		em.close();
 		factory.close();
@@ -83,10 +83,10 @@ public class RecursoDAO {
 	 * @param id
 	 * @return Um objeto Recurso
 	 */
-	public Recurso getById(Long id){
+	public Resource getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		return em.find(Recurso.class, id); //(Classe, ID)
+		return em.find(Resource.class, id); //(Classe, ID)
 	}
 }

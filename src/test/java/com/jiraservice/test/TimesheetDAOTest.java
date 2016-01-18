@@ -1,4 +1,4 @@
-package com.emc.test;
+package com.jiraservice.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -10,8 +10,8 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.emc.dao.TimesheetDAO;
-import com.emc.model.Timesheet;
+import com.jiraservice.dao.TimesheetDAO;
+import com.jiraservice.model.Timesheet;
 
 
 /**
@@ -24,11 +24,11 @@ public class TimesheetDAOTest {
 	private static final long ID = 1l;
 	private static final String KEY = "Test key entry";
 	private static final String TITLE = "Um titulo qualquer";
-	private static final Date DATA_CORRENTE = DateTime.now().toDate();
+	private static final Date CURRENT_DATE = DateTime.now().toDate();
 	private static final String USER_NAME = "Fulano";
 	private static final String COMMENT = "Gostei do seu horário";
 	
-	Timesheet timesheet = new Timesheet(ID, KEY, TITLE, DATA_CORRENTE, USER_NAME, DATA_CORRENTE, COMMENT);
+	Timesheet timesheet = new Timesheet(ID, KEY, TITLE, CURRENT_DATE, USER_NAME, CURRENT_DATE, COMMENT);
 	
 	TimesheetDAO timesheetDAO = new TimesheetDAO();
 	

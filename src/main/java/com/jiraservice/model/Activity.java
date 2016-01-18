@@ -1,4 +1,4 @@
-package com.emc.model;
+package com.jiraservice.model;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ import javax.persistence.Id;
  */
 
 @Entity
-public class Atividade {
+public class Activity {
 
 	@Id
 	private long id; /*ID do Projeto*/
@@ -70,11 +70,11 @@ public class Atividade {
 	private Date dueDate; /*Datas Prevista finalização*/
 
 	
-	public Atividade() {
+	public Activity() {
 
 	}
 	
-	public Atividade(long id, String keyMap, String summary, String issueType,
+	public Activity(long id, String keyMap, String summary, String issueType,
 			Date created, String resolution, Date resolved, Date updated,
 			String assigned, String status, String originalEstimate,
 			Date timeSpent, Date remainingEstimate, String workRatio,
