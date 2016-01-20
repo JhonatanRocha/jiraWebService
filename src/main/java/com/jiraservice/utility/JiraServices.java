@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.SearchRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Project;
+import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.User;
 
 public class JiraServices {
 
@@ -47,7 +50,7 @@ public class JiraServices {
     /**
      * 
      * @param filter
-     * @return list of Project from JIRA
+     * @return list of Projects from JIRA
      * @throws InterruptedException
      * @throws ExecutionException
      */
@@ -59,7 +62,7 @@ public class JiraServices {
 			if(basicProject.getName().length() >= 5){
 				if(basicProject.getName().substring(2, 5).equals(filter)){
 					projectKey = basicProject.getKey();
-					Project project = this.restClient.getProjectClient().getProject(projectKey).get();
+					Project project = getSingleProjectFromKey(projectKey);
 					projects.add(project);
 				}
 			}
@@ -67,8 +70,44 @@ public class JiraServices {
     	return projects;
     }
     
-   public List<Issue> getAllIssues(){
+    /**
+     * 
+     * @param projectKey
+     * @return list of Issues from Single Project from JIRA
+     */
+    public List<Issue> getAllIssuesFromProject(String projectKey){
+	   	String jql = "project = "+ projectKey;
+	   	List<Issue> listIssues = new ArrayList<Issue>();
+	   	SearchRestClient client = this.restClient.getSearchClient();
+		SearchResult results = client.searchJql(jql, 2000, 0, null).claim();
+		List<Issue> issues = (List<Issue>) results.getIssues();
+		
+		for (Issue issue : issues) {
+			listIssues.add(issue);
+		}
 	   
-	   return null;   
+	   return listIssues; 
    }
+    
+    /**
+     * 
+     * @param projectKey
+     * @return
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
+    public Project getSingleProjectFromKey(String projectKey) throws InterruptedException, ExecutionException{
+    	Project project = this.restClient.getProjectClient().getProject(projectKey).get();
+    	return project;
+    }
+    
+    public List<User> getAllUsersFromProject(String projectKey) throws InterruptedException, ExecutionException{
+    	Project project = this.restClient.getProjectClient().getProject(projectKey).get();
+    	List<Issue> issues = getAllIssuesFromProject("GFBD");
+    	
+    	for (Issue issue : issues) {
+			issue.getSummary();
+		}
+    	return null;
+    }
 }
