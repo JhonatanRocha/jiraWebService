@@ -6,6 +6,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.joda.time.DateTime;
+
+import com.atlassian.jira.rest.client.api.domain.Status;
+
 /**
  * 
  * @author Jhonatan Rocha
@@ -13,13 +17,15 @@ import javax.persistence.Id;
  */
 
 @Entity
-public class Activity {
+public class JiraIssue {
 
-	@Id
-	private long id; /*ID do Projeto*/
 	
+	@Id
 	@Column
 	private String keyMap; /*Chave da Atividade*/
+	
+	@Column
+	private long id; /*ID do Projeto*/
 	
 	@Column
 	private String summary; /*Descrição da Atividade*/
@@ -46,10 +52,10 @@ public class Activity {
 	private String status; /*Status da Atividade*/
 	
 	@Column
-	private String originalEstimate; /*Estimativa da Atividade*/
+	private Integer originalEstimate; /*Estimativa da Atividade*/
 	
 	@Column
-	private Date timeSpent; /*Total de horas lançadas*/
+	private Integer timeSpent; /*Total de horas lançadas*/
 	
 	@Column
 	private Date remainingEstimate; /*Tempo faltante*/
@@ -70,16 +76,15 @@ public class Activity {
 	private Date dueDate; /*Datas Prevista finalização*/
 
 	
-	public Activity() {
+	public JiraIssue() {
 
 	}
 	
-	public Activity(long id, String keyMap, String summary, String issueType,
+	public JiraIssue(String keyMap, String summary, String issueType,
 			Date created, String resolution, Date resolved, Date updated,
-			String assigned, String status, String originalEstimate,
-			Date timeSpent, Date remainingEstimate, String workRatio,
+			String assigned, String status, Integer originalEstimate,
+			Integer timeSpent, Date remainingEstimate, String workRatio,
 			String sprint, String creator, String progress, Date dueDate) {
-		this.id = id;
 		this.keyMap = keyMap;
 		this.summary = summary;
 		this.issueType = issueType;
@@ -97,6 +102,21 @@ public class Activity {
 		this.creator = creator;
 		this.progress = progress;
 		this.dueDate = dueDate;
+	}
+
+	public JiraIssue(String key, String summary, String issueType,
+			Date creationDate, String assigned, Integer tempoEstimado,
+			Integer executedHourTotal, String status) {
+		
+		this.keyMap = keyMap;
+		this.summary = summary;
+		this.issueType = issueType;
+		this.created = creationDate;
+		this.assigned = assigned;
+		this.originalEstimate = tempoEstimado;
+		this.timeSpent = executedHourTotal;
+		this.status = status;
+		
 	}
 
 	public long getId() {
@@ -179,19 +199,19 @@ public class Activity {
 		this.status = status;
 	}
 
-	public String getOriginalEstimate() {
+	public Integer getOriginalEstimate() {
 		return originalEstimate;
 	}
 
-	public Date getTimeSpent() {
+	public Integer getTimeSpent() {
 		return timeSpent;
 	}
 	
-	public void setTimeSpent(Date timeSpent) {
+	public void setTimeSpent(Integer timeSpent) {
 		this.timeSpent = timeSpent;
 	}
 	
-	public void setOriginalEstimate(String originalEstimate) {
+	public void setOriginalEstimate(Integer originalEstimate) {
 		this.originalEstimate = originalEstimate;
 	}
 

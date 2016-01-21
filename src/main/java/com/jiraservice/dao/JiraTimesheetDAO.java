@@ -9,25 +9,25 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.jiraservice.model.Resource;
+import com.jiraservice.model.JiraTimesheet;
 
 /**
  * 
  * @author Jhonatan Rocha
  *
  */
-public class ResourceDAO {
+public class JiraTimesheetDAO {
 
 	/**
 	 * 
-	 * @param recurso
+	 * @param timesheet
 	 */
-	public void insert(Resource recurso) {
+	public void insert(JiraTimesheet timesheet) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
 		em.getTransaction().begin();
-		em.persist(recurso);
+		em.persist(timesheet);
 		em.getTransaction().commit();
 		em.close();
 		factory.close();
@@ -35,14 +35,14 @@ public class ResourceDAO {
 	
 	/**
 	 * 
-	 * @return
+	 * @return Uma lista de objetos de Timesheet
 	 */
-	public List<Resource> listAll(){
+	public List<JiraTimesheet> listAll(){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
-	    Root<Resource> root = query.from(Resource.class);
+	    CriteriaQuery<JiraTimesheet> query = builder.createQuery(JiraTimesheet.class);
+	    Root<JiraTimesheet> root = query.from(JiraTimesheet.class);
 	    query.select(root);
 
 	    return em.createQuery(query).getResultList();
@@ -50,13 +50,13 @@ public class ResourceDAO {
 	
 	/**
 	 * 
-	 * @param resource
+	 * @param timesheet
 	 */
-	public void update(Resource resource) {
+	public void update(JiraTimesheet timesheet) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		resource = em.find(Resource.class, resource.getId()); //(Classe, ID)
+		timesheet = em.find(JiraTimesheet.class, timesheet.getId()); //(Classe, ID)
 		em.getTransaction().begin();
 		em.getTransaction().commit();
 		em.close();
@@ -70,9 +70,9 @@ public class ResourceDAO {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		Resource resource = em.find(Resource.class, id); //(Classe, ID)
+		JiraTimesheet timesheet = em.find(JiraTimesheet.class, id); //(Classe, ID)
 		em.getTransaction().begin();
-		em.remove(resource);
+		em.remove(timesheet);
 		em.getTransaction().commit();
 		em.close();
 		factory.close();
@@ -81,12 +81,12 @@ public class ResourceDAO {
 	/**
 	 * 
 	 * @param id
-	 * @return Um objeto Recurso
+	 * @return Um objeto Timesheet
 	 */
-	public Resource getById(Long id){
+	public JiraTimesheet getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		return em.find(Resource.class, id); //(Classe, ID)
+		return em.find(JiraTimesheet.class, id); //(Classe, ID)
 	}
 }

@@ -7,7 +7,7 @@ import java.util.Date;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.jiraservice.model.Project;
+import com.jiraservice.model.JiraProject;
 
 
 /**
@@ -23,7 +23,7 @@ public class ProjectTest {
 		
 		Date currentDate = DateTime.now().toDate();
 		
-		Project project = new Project(1l, "Projeto Piloto", currentDate);
+		JiraProject project = new JiraProject(1l, "Projeto Piloto", currentDate);
 		
 		assertEquals(1l, project.getId());
 		assertEquals("Projeto Piloto", project.getProject());

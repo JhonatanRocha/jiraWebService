@@ -10,8 +10,8 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.jiraservice.dao.TimesheetDAO;
-import com.jiraservice.model.Timesheet;
+import com.jiraservice.dao.JiraTimesheetDAO;
+import com.jiraservice.model.JiraTimesheet;
 
 
 /**
@@ -28,14 +28,14 @@ public class TimesheetDAOTest {
 	private static final String USER_NAME = "Fulano";
 	private static final String COMMENT = "Gostei do seu horário";
 	
-	Timesheet timesheet = new Timesheet(ID, KEY, TITLE, CURRENT_DATE, USER_NAME, CURRENT_DATE, COMMENT);
+	JiraTimesheet timesheet = new JiraTimesheet(ID, KEY, TITLE, CURRENT_DATE, USER_NAME, CURRENT_DATE, COMMENT);
 	
-	TimesheetDAO timesheetDAO = new TimesheetDAO();
+	JiraTimesheetDAO timesheetDAO = new JiraTimesheetDAO();
 	
 	@Test
 	public void insert() {
 		timesheetDAO.insert(timesheet);
-		Timesheet persistedTimesheet = timesheetDAO.getById(ID);
+		JiraTimesheet persistedTimesheet = timesheetDAO.getById(ID);
 		timesheetDAO.removeById(ID);
 		
 		assertEquals(timesheet.getId(), persistedTimesheet.getId());
@@ -50,11 +50,11 @@ public class TimesheetDAOTest {
 	@Test
 	public void listAll(){
 		timesheetDAO.insert(timesheet);
-		List<Timesheet> listTimesheet = timesheetDAO.listAll();
+		List<JiraTimesheet> listTimesheet = timesheetDAO.listAll();
 		timesheetDAO.removeById(ID);
 		
 		if(listTimesheet.size() == 1){
-			for (Timesheet persistedTimesheet : listTimesheet) {				
+			for (JiraTimesheet persistedTimesheet : listTimesheet) {				
 			assertEquals(timesheet.getId(), persistedTimesheet.getId());
 			assertEquals(timesheet.getKey(), persistedTimesheet.getKey());
 			assertEquals(timesheet.getTitle(), persistedTimesheet.getTitle());
@@ -74,7 +74,7 @@ public class TimesheetDAOTest {
 		timesheetDAO.insert(timesheet);
 		timesheet.setTitle(newTitle);
 		timesheetDAO.update(timesheet);
-		Timesheet persistedTimesheet = timesheetDAO.getById(ID);
+		JiraTimesheet persistedTimesheet = timesheetDAO.getById(ID);
 		timesheetDAO.removeById(ID);
 		
 		assertEquals(timesheet.getId(), persistedTimesheet.getId());
@@ -90,7 +90,7 @@ public class TimesheetDAOTest {
 	public void removeById() {
 		timesheetDAO.insert(timesheet);
 		timesheetDAO.removeById(ID);
-		Timesheet persistedTimesheet = timesheetDAO.getById(ID);
+		JiraTimesheet persistedTimesheet = timesheetDAO.getById(ID);
 		
 		assertTrue(persistedTimesheet == null);
 	}
@@ -98,7 +98,7 @@ public class TimesheetDAOTest {
 	@Test
 	public void getById(){
 		timesheetDAO.insert(timesheet);
-		Timesheet persistedTimesheet = timesheetDAO.getById(ID);
+		JiraTimesheet persistedTimesheet = timesheetDAO.getById(ID);
 		timesheetDAO.removeById(ID);
 		
 		assertEquals(timesheet.getId(), persistedTimesheet.getId());

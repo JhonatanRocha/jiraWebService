@@ -9,25 +9,25 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.jiraservice.model.Activity;
+import com.jiraservice.model.JiraResource;
 
 /**
  * 
  * @author Jhonatan Rocha
  *
  */
-public class ActivityDAO {
+public class JiraResourceDAO {
 
 	/**
 	 * 
-	 * @param activity
+	 * @param recurso
 	 */
-	public void insert(Activity activity) {
+	public void insert(JiraResource recurso) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
 		em.getTransaction().begin();
-		em.persist(activity);
+		em.persist(recurso);
 		em.getTransaction().commit();
 		em.close();
 		factory.close();
@@ -37,12 +37,12 @@ public class ActivityDAO {
 	 * 
 	 * @return
 	 */
-	public List<Activity> listAll(){
+	public List<JiraResource> listAll(){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<Activity> query = builder.createQuery(Activity.class);
-	    Root<Activity> root = query.from(Activity.class);
+	    CriteriaQuery<JiraResource> query = builder.createQuery(JiraResource.class);
+	    Root<JiraResource> root = query.from(JiraResource.class);
 	    query.select(root);
 
 	    return em.createQuery(query).getResultList();
@@ -50,14 +50,13 @@ public class ActivityDAO {
 	
 	/**
 	 * 
-	 * @param activity 
-	 * 
+	 * @param resource
 	 */
-	public void update(Activity activity) {
+	public void update(JiraResource resource) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		activity = em.find(Activity.class, activity.getId()); //(Classe, ID)
+		resource = em.find(JiraResource.class, resource.getId()); //(Classe, ID)
 		em.getTransaction().begin();
 		em.getTransaction().commit();
 		em.close();
@@ -67,13 +66,13 @@ public class ActivityDAO {
 	 * 
 	 * @param id
 	 */
-	public void removeById(Long id){
+	public void removeById(Long id) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		Activity activity = em.find(Activity.class, id); //(Classe, ID)
+		JiraResource resource = em.find(JiraResource.class, id); //(Classe, ID)
 		em.getTransaction().begin();
-		em.remove(activity);
+		em.remove(resource);
 		em.getTransaction().commit();
 		em.close();
 		factory.close();
@@ -82,12 +81,12 @@ public class ActivityDAO {
 	/**
 	 * 
 	 * @param id
-	 * @return
+	 * @return Um objeto Recurso
 	 */
-	public Activity getById(Long id){
+	public JiraResource getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		return em.find(Activity.class, id); //(Classe, ID)
+		return em.find(JiraResource.class, id); //(Classe, ID)
 	}
 }

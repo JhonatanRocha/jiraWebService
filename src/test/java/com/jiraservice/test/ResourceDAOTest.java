@@ -10,8 +10,8 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.jiraservice.dao.ResourceDAO;
-import com.jiraservice.model.Resource;
+import com.jiraservice.dao.JiraResourceDAO;
+import com.jiraservice.model.JiraResource;
 
 /**
  * 
@@ -26,14 +26,14 @@ public class ResourceDAOTest {
 	private static final Date DATA_CORRENTE = DateTime.now().toDate();
 	private static final String STATUS = "Open";
 	
-	Resource resource = new Resource(ID, USER_NAME, FULL_NAME, DATA_CORRENTE, DATA_CORRENTE, STATUS);
+	JiraResource resource = new JiraResource(ID, USER_NAME, FULL_NAME, DATA_CORRENTE, DATA_CORRENTE, STATUS);
 	
-	ResourceDAO resourceDAO = new ResourceDAO();
+	JiraResourceDAO resourceDAO = new JiraResourceDAO();
 	
 	@Test
 	public void insert() {
 		resourceDAO.insert(resource);
-		Resource persistedResource = resourceDAO.getById(ID);
+		JiraResource persistedResource = resourceDAO.getById(ID);
 		resourceDAO.removeById(ID);
 		
 		assertEquals(resource.getId(), persistedResource.getId());
@@ -47,11 +47,11 @@ public class ResourceDAOTest {
 	@Test
 	public void listAll(){
 		resourceDAO.insert(resource);
-		List<Resource> listResource = resourceDAO.listAll();
+		List<JiraResource> listResource = resourceDAO.listAll();
 		resourceDAO.removeById(ID);
 		
 		if(listResource.size() == 1){
-			for (Resource persistedResource : listResource) {
+			for (JiraResource persistedResource : listResource) {
 				assertEquals(resource.getId(), persistedResource.getId());
 				assertEquals(resource.getUserName(), persistedResource.getUserName());
 				assertEquals(resource.getFullName(), persistedResource.getFullName());
@@ -69,7 +69,7 @@ public class ResourceDAOTest {
 		resourceDAO.insert(resource);
 		resource.setStatus(newStatus);
 		resourceDAO.update(resource);
-		Resource persistedResource = resourceDAO.getById(ID);
+		JiraResource persistedResource = resourceDAO.getById(ID);
 		resourceDAO.removeById(ID);
 		
 		assertEquals(resource.getId(), persistedResource.getId());
@@ -84,7 +84,7 @@ public class ResourceDAOTest {
 	public void removeById() {
 		resourceDAO.insert(resource);
 		resourceDAO.removeById(ID);
-		Resource persistedResource = resourceDAO.getById(ID);
+		JiraResource persistedResource = resourceDAO.getById(ID);
 		
 		assertTrue(persistedResource == null);
 	}
@@ -92,7 +92,7 @@ public class ResourceDAOTest {
 	@Test
 	public void getById(){
 		resourceDAO.insert(resource);
-		Resource persistedResource = resourceDAO.getById(ID);
+		JiraResource persistedResource = resourceDAO.getById(ID);
 		resourceDAO.removeById(ID);
 		
 		assertEquals(resource.getId(), persistedResource.getId());

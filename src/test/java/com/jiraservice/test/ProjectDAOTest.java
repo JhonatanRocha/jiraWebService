@@ -10,8 +10,8 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.jiraservice.dao.ProjectDAO;
-import com.jiraservice.model.Project;
+import com.jiraservice.dao.JiraProjectDAO;
+import com.jiraservice.model.JiraProject;
 
 /**
  * 
@@ -24,14 +24,14 @@ public class ProjectDAOTest {
 	private static final String NOME_PROJETO = "Integração WebService JIRA";
 	private static final Date DATA_CORRENTE = DateTime.now().toDate();
 	
-	Project project = new Project(ID, NOME_PROJETO, DATA_CORRENTE);
+	JiraProject project = new JiraProject(ID, NOME_PROJETO, DATA_CORRENTE);
 	
-	ProjectDAO projectDAO = new ProjectDAO();
+	JiraProjectDAO projectDAO = new JiraProjectDAO();
 
 	@Test
 	public void insert() {
 		projectDAO.insert(project);
-		Project persistedProject = projectDAO.getById(ID);
+		JiraProject persistedProject = projectDAO.getById(ID);
 		projectDAO.removeById(ID);
 		
 		assertEquals(project.getId(), persistedProject.getId());
@@ -42,11 +42,11 @@ public class ProjectDAOTest {
 	@Test
 	public void listAll(){
 		projectDAO.insert(project);
-		List<Project> listProject = projectDAO.listAll();
+		List<JiraProject> listProject = projectDAO.listAll();
 		projectDAO.removeById(ID);
 		
 		if(listProject.size() == 1){
-			for (Project persistedProject : listProject) {
+			for (JiraProject persistedProject : listProject) {
 				assertEquals(project.getId(), persistedProject.getId());
 				assertEquals(project.getProject(), persistedProject.getProject());
 				//assertEquals(projeto.getDataCreate(), persistedProjeto.getDataCreate());
@@ -61,7 +61,7 @@ public class ProjectDAOTest {
 		projectDAO.insert(project);
 		project.setProject(newProjectName);
 		projectDAO.update(project);
-		Project persistedProject = projectDAO.getById(ID);
+		JiraProject persistedProject = projectDAO.getById(ID);
 		projectDAO.removeById(ID);
 		
 		assertEquals(project.getId(), persistedProject.getId());
@@ -73,7 +73,7 @@ public class ProjectDAOTest {
 	public void removeById() {
 		projectDAO.insert(project);
 		projectDAO.removeById(ID);
-		Project persistedProject = projectDAO.getById(ID);
+		JiraProject persistedProject = projectDAO.getById(ID);
 		
 		assertTrue(persistedProject == null);
 	}
@@ -81,7 +81,7 @@ public class ProjectDAOTest {
 	@Test
 	public void getById(){
 		projectDAO.insert(project);
-		Project persistedProject = projectDAO.getById(ID);
+		JiraProject persistedProject = projectDAO.getById(ID);
 		projectDAO.removeById(ID);
 		
 		assertEquals(project.getId(), persistedProject.getId());

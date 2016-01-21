@@ -13,13 +13,13 @@ import javax.persistence.Column;
  */
 
 @Entity
-public class Resource {
-
+public class JiraResource {
+	
 	@Id
-	private long id; /*ID do Recurso*/
+	private String userName; /*Nome do Recurso*/
 	
 	@Column
-	private String userName; /*Nome do Recurso*/
+	private long id; /*ID do Recurso*/
 	
 	@Column
 	private String fullName; /*Nome Completo do Recurso*/
@@ -33,11 +33,16 @@ public class Resource {
 	@Column
 	private String status; /*Status do Recurso*/
 	
-	public Resource() {
+	public JiraResource() {
 
 	}
 	
-	public Resource(Long id, String userName, String fullName,
+	public JiraResource(String userName, String fullName) {
+		this.userName = userName;
+		this.fullName = fullName;
+	}
+	
+	public JiraResource(Long id, String userName, String fullName,
 			Date dataInicio, Date dataFinal, String status) {
 		this.id = id;
 		this.userName = userName;

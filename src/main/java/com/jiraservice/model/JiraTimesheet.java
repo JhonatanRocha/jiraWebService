@@ -13,7 +13,7 @@ import javax.persistence.Column;
  */
 
 @Entity
-public class Timesheet {
+public class JiraTimesheet {
 
 	@Id
 	private long id; /*ID do Projeto*/
@@ -37,11 +37,11 @@ public class Timesheet {
 	@Column
 	private String comment; /*Comentários*/
 
-	public Timesheet() {
+	public JiraTimesheet() {
 
 	}
 
-	public Timesheet(long id, String keyMap, String title, Date date,
+	public JiraTimesheet(long id, String keyMap, String title, Date date,
 			String userName, Date timeSpent, String comment) {
 		this.id = id;
 		this.keyMap = keyMap;

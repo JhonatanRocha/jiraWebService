@@ -9,20 +9,20 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.jiraservice.model.Project;
+import com.jiraservice.model.JiraProject;
 
 /**
  * 
  * @author Jhonatan Rocha
  *
  */
-public class ProjectDAO {
+public class JiraProjectDAO {
 
 	/**
 	 * 
 	 * @param project
 	 */
-	public void insert(Project project) {
+	public void insert(JiraProject project) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
@@ -37,12 +37,12 @@ public class ProjectDAO {
 	 * 
 	 * @return
 	 */
-	public List<Project> listAll(){
+	public List<JiraProject> listAll(){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<Project> query = builder.createQuery(Project.class);
-	    Root<Project> root = query.from(Project.class);
+	    CriteriaQuery<JiraProject> query = builder.createQuery(JiraProject.class);
+	    Root<JiraProject> root = query.from(JiraProject.class);
 	    query.select(root);
 
 	    return em.createQuery(query).getResultList();
@@ -52,11 +52,11 @@ public class ProjectDAO {
 	 * 
 	 * @param projeto
 	 */
-	public void update(Project projeto) {
+	public void update(JiraProject projeto) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		projeto = em.find(Project.class, projeto.getId()); //(Classe, ID)
+		projeto = em.find(JiraProject.class, projeto.getId()); //(Classe, ID)
 		em.getTransaction().begin();
 		em.getTransaction().commit();
 		em.close();
@@ -70,7 +70,7 @@ public class ProjectDAO {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		Project projeto = em.find(Project.class, id); //(Classe, ID)
+		JiraProject projeto = em.find(JiraProject.class, id); //(Classe, ID)
 		em.getTransaction().begin();
 		em.remove(projeto);
 		em.getTransaction().commit();
@@ -83,10 +83,10 @@ public class ProjectDAO {
 	 * @param id
 	 * @return Um objeto Projeto
 	 */
-	public Project getById(Long id){
+	public JiraProject getById(Long id){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("jiraextraction");
 		EntityManager em = factory.createEntityManager();
 		
-		return em.find(Project.class, id); //(Classe, ID)
+		return em.find(JiraProject.class, id); //(Classe, ID)
 	}
 }

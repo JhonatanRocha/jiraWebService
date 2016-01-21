@@ -7,7 +7,7 @@ import java.util.Date;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.jiraservice.model.Timesheet;
+import com.jiraservice.model.JiraTimesheet;
 
 
 /**
@@ -23,7 +23,7 @@ public class TimesheetTest {
 		
 		Date dataAtual = DateTime.now().toDate();
 		
-		Timesheet timesheet = new Timesheet(1l, "chave2", "titulo do proximo do projeto", dataAtual, "fulano", dataAtual, "cometarios legais");
+		JiraTimesheet timesheet = new JiraTimesheet(1l, "chave2", "titulo do proximo do projeto", dataAtual, "fulano", dataAtual, "cometarios legais");
 		
 		assertEquals(1l, timesheet.getId());
 	}

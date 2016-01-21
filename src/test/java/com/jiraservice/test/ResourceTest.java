@@ -7,7 +7,7 @@ import java.util.Date;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.jiraservice.model.Resource;
+import com.jiraservice.model.JiraResource;
 
 
 /**
@@ -23,7 +23,7 @@ public class ResourceTest {
 		
 		Date currentDate = DateTime.now().toDate();
 		
-		Resource resource = new Resource(1l, "fulano", "fulano da silva", currentDate, currentDate, "alocado");
+		JiraResource resource = new JiraResource(1l, "fulano", "fulano da silva", currentDate, currentDate, "alocado");
 		
 		assertEquals(1l, resource.getId());
 		assertEquals("fulano", resource.getUserName());
