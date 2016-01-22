@@ -1,12 +1,15 @@
 package com.jiraservice.utility;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
@@ -14,6 +17,7 @@ import com.atlassian.jira.rest.client.api.SearchRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.User;
@@ -90,11 +94,11 @@ public class JiraServices {
 			SearchResult results = client.searchJql(jql, 2000, 0, null).claim();
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
-			
-			List<JiraIssue> jiraIssues = getAtividades(results, cliente, recursos);
-			project.setIssues(jiraIssues);
-			projects.add(project);
-						
+			if (validaDataProjeto(issues.get(0).getCreationDate(), initialDate, finalDate)) {
+				List<JiraIssue> jiraIssues = getAtividades(results, cliente, recursos);
+				project.setIssues(jiraIssues);
+				projects.add(project);
+			}	
 		}
 		return projects;
 	}
@@ -112,6 +116,23 @@ public class JiraServices {
 			if(issue.getAssignee() == null || issue.getIssueType().getName() == null){
 				//System.out.println(issue.getKey());
 			}else{
+				String creator = "";
+				int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
+				//IssueField sprintField = issue.getFieldByName("Sprint");
+				
+				Object workrate = issue.getField("workratio").getValue();
+				JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
+				try {
+					creator = jsonIssueCreator.get("name").toString();
+				} catch (JSONException e) {
+					throw new RuntimeException(e);
+				}
+				/*int i = 0;
+				for (IssueField issueField : fields) {
+					Object value = issueField.getValue();
+					System.out.println("campo: " + i);
+					i++;
+				}*/
 				JiraIssue jiraIssue = new JiraIssue(
 						issue.getKey(),
 						issue.getSummary(),
@@ -120,7 +141,10 @@ public class JiraServices {
 						issue.getAssignee().getName(),
 						tempoEstimado,
 						getExecutedHourTotal(worklogs),
-						issue.getStatus().getName());
+						remainingTime,
+						issue.getStatus().getName(), 
+						Long.valueOf(workrate.toString()).longValue(),
+						creator);
 				jiraIssues.add(jiraIssue);
 			}
 		}
@@ -220,5 +244,12 @@ public class JiraServices {
 		}
 		
 		return valor / 60;
+	}
+    
+    public boolean validaDataProjeto(DateTime dataProjeto, DateTime dataInicial, DateTime dataFinal){
+		
+		return (dataProjeto.isAfter(dataInicial) && dataProjeto.isBefore(dataFinal))
+				|| dataProjeto.equals(dataInicial)
+				|| dataProjeto.equals(dataFinal);
 	}
 }

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.joda.time.DateTime;
+
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.User;
@@ -21,8 +23,8 @@ public class testMain {
 		jiraAPI = new JiraServices();
 
 		//List<Project> getallProjects = jiraAPI.getallProjects("TIM");
-		List<Issue> allIssuesFromProject = jiraAPI.getAllIssuesFromProject("GFBD");
-		List<User> allUsersFromProject = jiraAPI.getAllUsersFromProject("GFBD");
+		//List<Issue> allIssuesFromProject = jiraAPI.getAllIssuesFromProject("GFBD");
+		//List<User> allUsersFromProject = jiraAPI.getAllUsersFromProject("GFBD");
 		
 		//LISTA OS PROJETOS DE ACORDO COM O FILTRO
 		/*for (Project project : getallProjects) {
@@ -97,6 +99,26 @@ public class testMain {
 		}*/
 		
 		//TODO: IMPLEMENTAÇÃO COM BUSCA COM INTERVALO DE DATAS!
+		List<JiraProject> resours = jiraAPI.getProjects("TIM", new DateTime(2015, 12, 1, 0, 0, 0, 0), new DateTime(2016, 1, 22, 0, 0, 0, 0));
+		int i = 0;
+		for (JiraProject jiraProject : resours) {
+			System.out.println(jiraProject.getKey());
+			System.out.println(jiraProject.getProject());
+			System.out.println("=== LISTANDO ATIVIDADES ===");
+			for (JiraIssue jiraIssue : jiraProject.getIssues()) {
+				System.out.println("[ID] " + jiraIssue.getId());
+				System.out.println("[KEY] " + jiraIssue.getKey());
+				System.out.println("[TYPE] " + jiraIssue.getIssueType());
+				System.out.println("[SUMMARY] " + jiraIssue.getSummary());
+				System.out.println("[STATUS] " + jiraIssue.getStatus());
+				System.out.println("[ASSIGNED] " + jiraIssue.getAssigned());
+				System.out.println("[ORIGINAL ESTIMATE] " + jiraIssue.getOriginalEstimate());
+				System.out.println("[TIME SPENT] " + jiraIssue.getTimeSpent());
+				System.out.println("[REMAINING TIME] " + jiraIssue.getRemainingEstimate());
+				System.out.println("[CREATOR] " + jiraIssue.getCreator());
+				System.out.println("[WORKRATIO] " + jiraIssue.getWorkRatio());
+			}
+		}
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;

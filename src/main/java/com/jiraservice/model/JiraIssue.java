@@ -58,10 +58,10 @@ public class JiraIssue {
 	private Integer timeSpent; /*Total de horas lançadas*/
 	
 	@Column
-	private Date remainingEstimate; /*Tempo faltante*/
+	private Integer remainingEstimate; /*Tempo faltante*/
 	
 	@Column
-	private String workRatio; /*% de Trabalho efetivo*/
+	private long workRatio; /*% de Trabalho efetivo*/
 	
 	@Column
 	private String sprint; /*Qual a sprint*/
@@ -83,7 +83,7 @@ public class JiraIssue {
 	public JiraIssue(String keyMap, String summary, String issueType,
 			Date created, String resolution, Date resolved, Date updated,
 			String assigned, String status, Integer originalEstimate,
-			Integer timeSpent, Date remainingEstimate, String workRatio,
+			Integer timeSpent, Integer remainingEstimate, long workRatio,
 			String sprint, String creator, String progress, Date dueDate) {
 		this.keyMap = keyMap;
 		this.summary = summary;
@@ -106,16 +106,19 @@ public class JiraIssue {
 
 	public JiraIssue(String key, String summary, String issueType,
 			Date creationDate, String assigned, Integer tempoEstimado,
-			Integer executedHourTotal, String status) {
+			Integer executedHourTotal,Integer remaningTime, String status, long workratio, String creator) {
 		
-		this.keyMap = keyMap;
+		this.keyMap = key;
 		this.summary = summary;
 		this.issueType = issueType;
 		this.created = creationDate;
 		this.assigned = assigned;
 		this.originalEstimate = tempoEstimado;
 		this.timeSpent = executedHourTotal;
+		this.remainingEstimate = remaningTime;
 		this.status = status;
+		this.workRatio = workratio;
+		this.creator = creator;
 		
 	}
 
@@ -215,19 +218,19 @@ public class JiraIssue {
 		this.originalEstimate = originalEstimate;
 	}
 
-	public Date getRemainingEstimate() {
+	public Integer getRemainingEstimate() {
 		return remainingEstimate;
 	}
 
-	public void setRemainingEstimate(Date remainingEstimate) {
+	public void setRemainingEstimate(Integer remainingEstimate) {
 		this.remainingEstimate = remainingEstimate;
 	}
 
-	public String getWorkRatio() {
+	public long getWorkRatio() {
 		return workRatio;
 	}
 
-	public void setWorkRatio(String workRatio) {
+	public void setWorkRatio(long workRatio) {
 		this.workRatio = workRatio;
 	}
 
