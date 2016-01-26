@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+     <title>EMC - Relatórios do Jira</title>
+</h:head>
+
+<h:body>
+     <script>
+     PrimeFaces.locales['pt_BR'] = {
+    		    closeText: 'Fechar',
+    		    prevText: 'Anterior',
+    		    nextText: 'Próximo',
+    		    currentText: 'Começo',
+    		    monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+    		    monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun', 'Jul','Ago','Set','Out','Nov','Dez'],
+    		    dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+    		    dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
+    		    dayNamesMin: ['D','S','T','Q','Q','S','S'],
+    		    weekHeader: 'Semana',
+    		    firstDay: 0,
+    		    isRTL: false,
+    		    showMonthAfterYear: false,
+    		    yearSuffix: '',
+    		    timeOnlyTitle: 'Só Horas',
+    		    timeText: 'Tempo',
+    		    hourText: 'Hora',
+    		    minuteText: 'Minuto',
+    		    secondText: 'Segundo',
+    		    ampm: false,
+    		    month: 'Mês',
+    		    week: 'Semana',
+    		    day: 'Dia',
+    		    allDayText : 'Todo o Dia'
+    		};
+     </script>
+     <h2>EMC - Relatórios do Jira</h2>
+     <br/>
+     <h:form>
+	     <p:panel id="panel" header="EMC - Relatórios do Jira">
+	     	<h:outputLabel value="Data Inicial:"/>
+	     	<p:spacer width="10" height="10" />
+	     	<p:calendar locale="pt_BR" value="#{reportBean.dataInicial}" effect="fold"/>
+	     	<p:spacer width="10" height="10" />
+	     	<h:outputLabel value="Data Final:"/>
+	     	<p:spacer width="10" height="10" />
+	     	<p:calendar locale="pt_BR" value="#{reportBean.dataFinal}" effect="fold"/>
+	     	<p:spacer width="10" height="10" />
+	     	<p:selectOneMenu value="#{reportBean.selectedCompany}">  
+	    		<f:selectItems value="#{reportBean.companies}" var="em" itemLabel="#{em.valor}" />  
+			</p:selectOneMenu>
+			<p:spacer width="10" height="10" />
+			<p:commandButton value="Pesquisar" actionListener="#{reportBean.searchProjects}" />
+			<br/>
+			<br/>
+			<hr/>
+			<p:panelGrid style="margin-top:20px">
+				<f:facet name="header">
+			        <p:row>
+			            <p:column colspan="9">Projeto - </p:column>
+			        </p:row>
+			        <p:row>
+			            <p:column>Key</p:column>
+			            <p:column>Atividade</p:column>
+			            <p:column>Status</p:column>
+			            <p:column>Assigned</p:column>
+			            <p:column>Tempo Estimado</p:column>
+			            <p:column>Tempo Gasto</p:column>
+			            <p:column>Tempo Restante</p:column>
+			            <p:column>Work Ratio</p:column>
+			            <p:column>Criador</p:column>
+			        </p:row>
+			    </f:facet>
+			    <p:row>
+	       			<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	       			<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	    		</p:row>
+			</p:panelGrid>
+			<br/>
+			<p:panelGrid style="margin-top:20px">
+				<f:facet name="header">
+			        <p:row>
+			            <p:column colspan="9">Projeto - </p:column>
+			        </p:row>
+			        <p:row>
+			            <p:column>Key</p:column>
+			            <p:column>Atividade</p:column>
+			            <p:column>Status</p:column>
+			            <p:column>Assigned</p:column>
+			            <p:column>Tempo Estimado</p:column>
+			            <p:column>Tempo Gasto</p:column>
+			            <p:column>Tempo Restante</p:column>
+			            <p:column>Work Ratio</p:column>
+			            <p:column>Criador</p:column>
+			        </p:row>
+			    </f:facet>
+			    <p:row>
+	       			<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	       			<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	        		<p:column>LoreIpsum</p:column>
+	    		</p:row>
+			</p:panelGrid>
+	     </p:panel>
+		</h:form>
+</h:body>
+</html>

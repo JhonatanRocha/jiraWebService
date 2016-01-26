@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type="text/javascript">
+		if (PrimeFaces.widget.Schedule) {
+			PrimeFaces.widget.Schedule.prototype._oldInit = PrimeFaces.widget.Schedule.prototype.init;
+			PrimeFaces.widget.Schedule.prototype.init = function(cfg) {
+				cfg.columnFormat = {
+					month : 'ddd',
+					week : 'ddd d/M',
+					day : 'dddd d/M',
+					agendaWeek : 'ddd'
+				};
+				cfg.titleFormat = {
+					month : 'MMMM yyyy',
+					week : 'd MMM[ yyyy]{ &#8212;d [ MMM] yyyy}',
+					day : 'dddd, MMM d, yyyy',
+					day : 'dddd, d MMM, yyyy'
+				};
+
+				this._oldInit.apply(this, arguments);
+			};
+		}
+
+
+		PrimeFaces.locales['default'] = {
+			closeText : "#{m['closeText']}",
+			prevText : "#{m['prevText']}",
+			nextText : "#{m['nextText']}",
+			currentText : "#{m['currentText']}",
+			monthNames : [ "#{m['mJanuary']}", "#{m['mFebruary']}",
+					"#{m['mMarch']}", "#{m['mApril']}", "#{m['mMay']}",
+					"#{m['mJune']}", "#{m['mJuly']}", "#{m['mAugust']}",
+					"#{m['mSeptember']}", "#{m['mOctober']}",
+					"#{m['mNovember']}", "#{m['mDecember']}" ],
+			monthNamesShort : [ "#{m['msJanuary']}", "#{m['msFebruary']}",
+					"#{m['msMarch']}", "#{m['msApril']}", "#{m['msMay']}",
+					"#{m['msJune']}", "#{m['msJuly']}", "#{m['msAugust']}",
+					"#{m['msSeptember']}", "#{m['msOctober']}",
+					"#{m['msNovember']}", "#{m['msDecember']}" ],
+			dayNames : [ "#{m['dSunday']}", "#{m['dMonday']}",
+					"#{m['dTuesday']}", "#{m['dWednesday']}",
+					"#{m['dThursday']}", "#{m['dFriday']}", "#{m['dSaturday']}" ],
+			dayNamesShort : [ "#{m['dsSunday']}", "#{m['dsMonday']}",
+					"#{m['dsTuesday']}", "#{m['dsWednesday']}",
+					"#{m['dsThursday']}", "#{m['dsFriday']}",
+					"#{m['dsSaturday']}" ],
+			dayNamesMin : [ "#{m['dmSunday']}", "#{m['dmMonday']}",
+					"#{m['dmTuesday']}", "#{m['dmWednesday']}",
+					"#{m['dmThursday']}", "#{m['dmFriday']}",
+					"#{m['dmSaturday']}" ],
+			weekHeader : "#{m['dmSaturday']}",
+			firstDay : 1,
+			isRTL : false,
+			showMonthAfterYear : false,
+			yearSuffix : '',
+			timeOnlyTitle : "#{m['timeOnlyTitle']}",
+			timeText : "#{m['timeText']}",
+			hourText : "#{m['hourText']}",
+			minuteText : "#{m['minuteText']}",
+			secondText : "#{m['secondText']}",
+			currentText : "#{m['currentText']}",
+			ampm : false,
+			month : "#{m['month']}",
+			week : "#{m['week']}",
+			day : "#{m['day']}",
+			allDayText : "#{m['allDayText']}"
+		};
+		
+		PrimeFaces.locales['pt'] = {  
+                closeText: 'Fechar',  
+                prevText: 'Anterior',  
+                nextText: 'Próximo',  
+                currentText: 'Começo',  
+                monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],  
+                monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun', 'Jul','Ago','Set','Out','Nov','Dez'],  
+                dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],  
+                dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],  
+                dayNamesMin: ['D','S','T','Q','Q','S','S'],  
+                weekHeader: 'Semana',  
+                firstDay: 1,  
+                isRTL: false,  
+                showMonthAfterYear: false,  
+                yearSuffix: '',  
+                timeOnlyTitle: 'Só Horas',  
+                timeText: 'Tempo',  
+                hourText: 'Hora',  
+                minuteText: 'Minuto',  
+                secondText: 'Segundo',  
+                currentText: 'Data Atual',  
+                ampm: false,  
+                month: 'Mês',  
+                week: 'Semana',  
+                day: 'Dia',  
+                allDayText : 'Todo Dia'  
+            };  
+	</script>
+</h:head>
+<h:body>
+	<div>
+
+		<div>
+			<ui:insert>
+
+			</ui:insert>
+		</div>
+	</div>
+
+</h:body>
+</html>

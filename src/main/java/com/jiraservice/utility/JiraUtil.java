@@ -15,11 +15,15 @@ public class JiraUtil {
     private String JIRA_USERNAME = "jhonatan.rocha";
     private String JIRA_PASSWORD = "d24m02j";
 	
-	public JiraRestClient createClient() throws URISyntaxException {
+	public JiraRestClient createClient() {
     	
 		final AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-		final URI jiraServerUri = new URI(JIRA_HOST);
-		final JiraRestClient restClient = factory.createWithBasicHttpAuthentication(jiraServerUri, JIRA_USERNAME, JIRA_PASSWORD);
+		JiraRestClient restClient = null;
+		try {
+			restClient = factory.createWithBasicHttpAuthentication(new URI(JIRA_HOST), JIRA_USERNAME, JIRA_PASSWORD);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 		return restClient;
 	}
 	
@@ -38,7 +42,6 @@ public class JiraUtil {
 	}
 	
 	public Double convertMinuteHourDouble(Integer minutos){
-		
 		
 		StringBuilder tempo = new StringBuilder();
 		Integer valueHoras = minutos / 60;

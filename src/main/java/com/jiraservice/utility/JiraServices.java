@@ -61,11 +61,7 @@ public class JiraServices {
 	public JiraServices(){
 		
 		this.jiraUtil = new JiraUtil();
-		try {
-			this.restClient = jiraUtil.createClient();
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+		this.restClient = jiraUtil.createClient();
 	}
     
 	public void closeClient() throws IOException {

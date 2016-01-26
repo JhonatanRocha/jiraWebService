@@ -13,7 +13,7 @@ import javax.persistence.Column;
  *
  */
 
-@Entity
+@Entity 
 public class JiraProject {
 
 	@Id
