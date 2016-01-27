@@ -130,11 +130,11 @@ public class JiraIssue {
 		this.id = id;
 	}
 
-	public String getKey() {
+	public String getKeyMap() {
 		return keyMap;
 	}
 
-	public void setKey(String key) {
+	public void setKeyMap(String key) {
 		this.keyMap = key;
 	}
 

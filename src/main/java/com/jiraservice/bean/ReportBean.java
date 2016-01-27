@@ -27,6 +27,7 @@ public class ReportBean {
 	private Date dataInicial;
 	private Date dataFinal;
 	private Company selectedCompany;
+	private List<JiraProject> projetos;
 
 	@PostConstruct
 	public void init() {
@@ -38,24 +39,26 @@ public class ReportBean {
 		
 		System.out.println("buscaProjetos" + new DateTime().toString());
 		this.projetosTree = new DefaultTreeNode(new JiraProject(), null);
-		List<JiraProject> projetos = new ArrayList<>();
 		if(this.jiraServices == null){
 			this.jiraServices = new JiraServices();
 		}
 		try {
-			projetos = this.jiraServices.getProjects(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
+			if(this.dataInicial == null && this.dataFinal == null)
+				this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());
+			else
+				this.projetos = this.jiraServices.getProjects(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		
-		for (JiraProject projeto : projetos) {
+	/*	for (JiraProject projeto : this.projetos) {
 			
 			TreeNode projetoTree = new DefaultTreeNode(projeto, this.projetosTree);
 			for (JiraIssue atividade : projeto.getIssues()) {
 				TreeNode atividadeTree = new DefaultTreeNode(atividade, projetoTree);
 			}
 		}
-		System.out.println("buscaProjetos" + new DateTime().toString());
+		System.out.println("buscaProjetos" + new DateTime().toString());*/
 	}
 	
 	public Company[] getCompanies(){
@@ -100,5 +103,13 @@ public class ReportBean {
 	
 	public void setSelectedCompany(Company selectedCompany) {
 		this.selectedCompany = selectedCompany;
+	}
+
+	public List<JiraProject> getProjetos() {
+		return projetos;
+	}
+
+	public void setProjetos(List<JiraProject> projetos) {
+		this.projetos = projetos;
 	}
 }

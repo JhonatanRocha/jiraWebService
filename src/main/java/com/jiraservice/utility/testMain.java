@@ -107,7 +107,7 @@ public class testMain {
 			System.out.println("=== LISTANDO ATIVIDADES ===");
 			for (JiraIssue jiraIssue : jiraProject.getIssues()) {
 				System.out.println("[ID] " + jiraIssue.getId());
-				System.out.println("[KEY] " + jiraIssue.getKey());
+				System.out.println("[KEY] " + jiraIssue.getKeyMap());
 				System.out.println("[TYPE] " + jiraIssue.getIssueType());
 				System.out.println("[SUMMARY] " + jiraIssue.getSummary());
 				System.out.println("[STATUS] " + jiraIssue.getStatus());

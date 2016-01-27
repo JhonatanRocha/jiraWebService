@@ -5,6 +5,8 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
+<h:outputStylesheet name="css/screen.css" />
+
 <h:head>
 	<script type="text/javascript">
 		if (PrimeFaces.widget.Schedule) {
@@ -102,10 +104,16 @@
 	</script>
 </h:head>
 <h:body>
-	<div>
+	<p:ajaxStatus onstart="PF('statusDialog').show();"
+		onsuccess="PF('statusDialog').hide();" />
+	<p:dialog modal="true" widgetVar="statusDialog"
+		header="#{m['ajax.process']}" draggable="false" closable="false">
+		<p:graphicImage value="/imagens/ajaxloadingbar.gif" />
+	</p:dialog>
+	<div class="page">
 
-		<div>
-			<ui:insert>
+		<div class="content">
+			<ui:insert name="content">
 
 			</ui:insert>
 		</div>
