@@ -107,8 +107,8 @@
 	<p:ajaxStatus onstart="PF('statusDialog').show();"
 		onsuccess="PF('statusDialog').hide();" />
 	<p:dialog modal="true" widgetVar="statusDialog"
-		header="#{m['ajax.process']}" draggable="false" closable="false">
-		<p:graphicImage value="/imagens/ajaxloadingbar.gif" />
+		header="#{m['ajax.process']}" draggable="false" closable="false" resizable="false">
+		<p:graphicImage value="/imagens/loading_bar.gif" />
 	</p:dialog>
 	<div class="page">
 

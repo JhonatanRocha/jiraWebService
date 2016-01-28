@@ -99,7 +99,7 @@ public class testMain {
 		}*/
 		
 		//TODO: IMPLEMENTAÇÃO COM BUSCA COM INTERVALO DE DATAS!
-		List<JiraProject> resours = jiraAPI.getProjects("TIM", new DateTime(2015, 12, 1, 0, 0, 0, 0), new DateTime(2016, 1, 22, 0, 0, 0, 0));
+		List<JiraProject> resours = jiraAPI.getProjectsBetweenDates("TIM", new DateTime(2015, 12, 1, 0, 0, 0, 0), new DateTime(2016, 1, 22, 0, 0, 0, 0));
 		int i = 0;
 		for (JiraProject jiraProject : resours) {
 			System.out.println(jiraProject.getKey());

@@ -1,8 +1,6 @@
 package com.jiraservice.utility;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +15,6 @@ import com.atlassian.jira.rest.client.api.SearchRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.User;
@@ -57,13 +54,28 @@ public class JiraServices {
 	
 	private JiraRestClient restClient;
 	private JiraUtil jiraUtil;
+	private List<JiraResource> recursos;
+	private Iterable<BasicProject> allBasicProjects;
     
 	public JiraServices(){
 		
 		this.jiraUtil = new JiraUtil();
 		this.restClient = jiraUtil.createClient();
+		try {
+			this.recursos = getAllResources();
+			this.allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
 	}
-    
+	
+    /**
+     * This method close
+     * the Web Service Client
+     * Connection.
+     * 
+     * @throws IOException
+     */
 	public void closeClient() throws IOException {
 		restClient.close();
 	}
@@ -80,9 +92,24 @@ public class JiraServices {
 		return project;
 	}
 	
-	public List<JiraProject> getProjects(String cliente, DateTime initialDate, DateTime finalDate) throws InterruptedException, ExecutionException {
+	/**
+	 * This method returns
+     * all the Projects from
+     * specific client, using 
+     * date interval.
+     * (the client is a 
+     * prefix name of the
+     * project name)
+	 * 
+	 * @param cliente
+	 * @param initialDate
+	 * @param finalDate
+	 * @return List of JiraProject
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	public List<JiraProject> getProjectsBetweenDates(String cliente, DateTime initialDate, DateTime finalDate) throws InterruptedException, ExecutionException {
 		List<JiraProject> projects = new ArrayList<JiraProject>();
-		List<JiraResource> recursos = getAllResources();
 		for (JiraProject project : getallProjects(cliente)) {
 			
 			String jql = "project = " + project.getKey();
@@ -90,15 +117,24 @@ public class JiraServices {
 			SearchResult results = client.searchJql(jql, 2000, 0, null).claim();
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
-			if (validaDataProjeto(issues.get(0).getCreationDate(), initialDate, finalDate)) {
-				List<JiraIssue> jiraIssues = getAtividades(results, cliente, recursos);
+			if (validateProjectDate(issues.get(0).getCreationDate(), initialDate, finalDate)) {
+				List<JiraIssue> jiraIssues = getAtividades(results, cliente, this.recursos);
 				project.setIssues(jiraIssues);
 				projects.add(project);
 			}	
 		}
 		return projects;
 	}
-    
+	
+    /**
+     * This method get all
+     * the Issues from Jira.
+     * 
+     * @param SearchResult results
+     * @param String client
+     * @param List<JiraResource> resources
+     * @return List of JiraIssue
+     */
     public List<JiraIssue> getAtividades(SearchResult results, String cliente,
 			List<JiraResource> recursos) {
     	
@@ -147,18 +183,30 @@ public class JiraServices {
 		return jiraIssues;
 	}
 
-	public List<JiraProject> getAllProjetosByCliente(String filter) throws InterruptedException, ExecutionException {
+    /**
+     * This method returns
+     * all the Projects from
+     * specific client
+     * (the client is a 
+     * prefix name of the
+     * project name)
+     * 
+     * @param String client
+     * @return List of JiraProject
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
+	public List<JiraProject> getAllProjetosByCliente(String client) throws InterruptedException, ExecutionException {
 		List<JiraProject> projects = new ArrayList<JiraProject>();
-		List<JiraResource> recursos = getAllResources();
-		for (JiraProject project : getallProjects(filter)) {
+		for (JiraProject project : getallProjects(client)) {
 			
 			String jql = "project = " + project.getKey();
-			SearchRestClient client = this.restClient.getSearchClient();
-			SearchResult results = client.searchJql(jql, 2000, 0, null).claim();
+			SearchRestClient searchRestClient = this.restClient.getSearchClient();
+			SearchResult results = searchRestClient.searchJql(jql, 2000, 0, null).claim();
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
 			
-			List<JiraIssue> jiraIssues = getAtividades(results, filter, recursos);
+			List<JiraIssue> jiraIssues = getAtividades(results, client, this.recursos);
 			project.setIssues(jiraIssues);
 			projects.add(project);
 						
@@ -166,9 +214,19 @@ public class JiraServices {
 		return projects;
 	}
 
+	/**
+	 * This method returns all the User
+	 * from Jira(in this specific case
+	 * we insert all the user on this
+	 * Project)
+	 * 
+	 * @return List of JiraResource
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public List<JiraResource> getAllResources() throws InterruptedException, ExecutionException {
 		List<JiraResource> resources = new ArrayList<JiraResource>();
-		List<User> usersFromJIRA = getAllUsersFromProject("GFBD");
+		List<User> usersFromJIRA = getAllUsers("GFBD");
 		
 		for (User user : usersFromJIRA) {
 			resources.add(new JiraResource(user.getName(), user.getDisplayName()));
@@ -178,16 +236,21 @@ public class JiraServices {
 	}
 
 	/**
-     * 
-     * @param filter
-     * @return list of Projects from JIRA
-     * @throws InterruptedException
-     * @throws ExecutionException
-     */
+	 * This method gets all
+	 * projects from JIRA
+	 * using the filter
+	 * (All projects name has a
+	 * prefix in their name,
+	 * this prefix refers a client)
+	 * 
+	 * @param String client
+	 * @return List of JiraProject;
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
     public List<JiraProject> getallProjects(String filter) throws InterruptedException, ExecutionException{
-    	Iterable<BasicProject> allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
     	List<JiraProject> projects = new ArrayList<JiraProject>();
-    	for (BasicProject basicProject : allBasicProjects) {
+    	for (BasicProject basicProject : this.allBasicProjects) {
 			if(basicProject.getName().length() >= 5) {
 				if(basicProject.getName().substring(2, 5).equals(filter)) {
 					Project project = getSingleProjectFromKey(basicProject.getKey());
@@ -201,11 +264,13 @@ public class JiraServices {
     	return projects;
     }
     
-    /**
-     * 
-     * @param projectKey
-     * @return list of Issues from Single Project from JIRA
-     */
+   /**
+    * This method returns all Issues
+    * from a single Project.
+    *  
+    * @param projectKey
+    * @return List of Issue from JIRA
+    */
    public List<Issue> getAllIssuesFromProject(String projectKey){
 	   	String jql = "project = "+ projectKey;
 	   	List<Issue> listIssues = new ArrayList<Issue>();
@@ -220,9 +285,19 @@ public class JiraServices {
 	   return listIssues; 
    }
     
-    
-    public List<User> getAllUsersFromProject(String projectKey) throws InterruptedException, ExecutionException{
-    	List<Issue> issues = getAllIssuesFromProject("GFBD");
+	/**
+	 * This method returns all the User
+	 * from Jira(in this specific case
+	 * we insert all the user on this
+	 * Project)
+	 * 
+	 * @param projectKey
+	 * @return List of Users from JIRA
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+    public List<User> getAllUsers(String projectKey) throws InterruptedException, ExecutionException{
+    	List<Issue> issues = getAllIssuesFromProject(projectKey);
     	List<User> projectUsers = new ArrayList<User>();
     	
     	for (Issue issue : issues) {
@@ -233,19 +308,35 @@ public class JiraServices {
     	return projectUsers;
     }
     
+    /**
+     * This method return the total
+     * time spent from Issue
+     * 
+     * @param List of Worklog from JIRA
+     * @return total time spent
+     */
     public Integer getExecutedHourTotal(List<Worklog> worklogs){
-		Integer valor = 0;
+		Integer total = 0;
 		for (Worklog worklog : worklogs) {
-			valor += worklog.getMinutesSpent();
+			total += worklog.getMinutesSpent();
 		}
 		
-		return valor / 60;
+		return total / 60;
 	}
     
-    public boolean validaDataProjeto(DateTime dataProjeto, DateTime dataInicial, DateTime dataFinal){
+    /**
+     * This method validate the DateTime
+     * from Project.
+     * 
+     * @param DateTime from Project
+     * @param DateTime initialDate
+     * @param DateTime finalDate
+     * @return boolean value (true/false)
+     */
+    public boolean validateProjectDate(DateTime projectDate, DateTime initialDate, DateTime finalDate){
 		
-		return (dataProjeto.isAfter(dataInicial) && dataProjeto.isBefore(dataFinal))
-				|| dataProjeto.equals(dataInicial)
-				|| dataProjeto.equals(dataFinal);
+		return (projectDate.isAfter(initialDate) && projectDate.isBefore(finalDate))
+				|| projectDate.equals(initialDate)
+				|| projectDate.equals(finalDate);
 	}
 }

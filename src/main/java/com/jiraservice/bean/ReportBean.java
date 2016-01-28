@@ -10,8 +10,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import org.joda.time.DateTime;
-import org.primefaces.model.DefaultTreeNode;
-import org.primefaces.model.TreeNode;
 
 import com.jiraservice.model.JiraIssue;
 import com.jiraservice.model.JiraProject;
@@ -23,30 +21,42 @@ import com.jiraservice.utility.JiraServices;
 public class ReportBean {
 
 	private JiraServices jiraServices;
-	private TreeNode projetosTree;
 	private Date dataInicial;
 	private Date dataFinal;
+	private String projectOrIssueKey;
+	private String projectOrIssueSelection;
 	private Company selectedCompany;
 	private List<JiraProject> projetos;
 
+	/**
+	 * This method is executed every time
+	 * the page its refreshed.
+	 */
 	@PostConstruct
 	public void init() {
 		this.jiraServices = new JiraServices();
-		this.projetosTree = new DefaultTreeNode(new JiraProject(), null);
 	}
 	
+	/**
+	 * This method search the
+	 * projects from JIRA
+	 */
 	public void searchProjects() {
-		
-		System.out.println("buscaProjetos" + new DateTime().toString());
-		this.projetosTree = new DefaultTreeNode(new JiraProject(), null);
+		System.out.println("Buscando... " + new DateTime().toString());
+
 		if(this.jiraServices == null){
 			this.jiraServices = new JiraServices();
 		}
 		try {
-			if(this.dataInicial == null && this.dataFinal == null)
-				this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());
-			else
-				this.projetos = this.jiraServices.getProjects(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
+			if(this.dataInicial == null && this.dataFinal == null && 
+				this.projectOrIssueKey.equals("") && this.projectOrIssueSelection.equals("")) {
+				
+					this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());					
+			} else if(this.projectOrIssueKey.equals("") && projectOrIssueSelection != null){
+				//this.projetos = this.jiraServices.getPro);
+			} else {
+				this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -71,14 +81,6 @@ public class ReportBean {
 	
 	public void setJiraServices(JiraServices jiraServices) {
 		this.jiraServices = jiraServices;
-	}
-	
-	public TreeNode getProjetosTree() {
-		return projetosTree;
-	}
-	
-	public void setProjetosTree(TreeNode projetosTree) {
-		this.projetosTree = projetosTree;
 	}
 	
 	public Date getDataInicial() {
@@ -111,5 +113,21 @@ public class ReportBean {
 
 	public void setProjetos(List<JiraProject> projetos) {
 		this.projetos = projetos;
+	}
+
+	public String getProjectOrIssueKey() {
+		return projectOrIssueKey;
+	}
+
+	public void setProjectOrIssueKey(String projectOrIssueKey) {
+		this.projectOrIssueKey = projectOrIssueKey;
+	}
+
+	public String getProjectOrIssueSelection() {
+		return projectOrIssueSelection;
+	}
+
+	public void setProjectOrIssueSelection(String projectOrIssueSelection) {
+		this.projectOrIssueSelection = projectOrIssueSelection;
 	}
 }

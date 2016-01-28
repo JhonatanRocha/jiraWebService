@@ -9,12 +9,26 @@ import java.util.GregorianCalendar;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
+/**
+ * <P>
+ * <B>Description :</B><BR>
+ * Class containing the integration service with Atlassian JIRA.
+ * </P>
+ * 
+ * @author <a href="mailto:jcristianrocha@gmail.com">Jhonatan Rocha</a>
+ */
 public class JiraUtil {
 	
 	private String JIRA_HOST = "https://emcconsulting.atlassian.net";
     private String JIRA_USERNAME = "jhonatan.rocha";
     private String JIRA_PASSWORD = "d24m02j";
 	
+    /**
+     * This method create the connection
+     * of the Web Service Client from JIRA.
+     * 
+     * @return JiraRestClient
+     */
 	public JiraRestClient createClient() {
     	
 		final AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
@@ -27,101 +41,140 @@ public class JiraUtil {
 		return restClient;
 	}
 	
-	public String convertMinuteHour(Integer minutos){
+	/**
+	 * This method converts Minutes to Hours.
+	 * 
+	 * @param String minutes
+	 * @return
+	 */
+	public String convertMinuteHour(Integer minutes){
 		
-		StringBuilder tempo = new StringBuilder();
-		String horas;
-		if(minutos != null){
-			Integer valueHoras = minutos / 60;
-			Integer valueMinutos = minutos % 60;
-			horas = tempo.append(String.valueOf(valueHoras)).append(":").append(valueMinutos < 10 && valueMinutos > 0 ? "0".concat(String.valueOf(valueMinutos)) : valueMinutos).toString();
+		StringBuilder time = new StringBuilder();
+		String hours;
+		if(minutes != null){
+			Integer valueHours = minutes / 60;
+			Integer valueMinutes = minutes % 60;
+			hours = time.append(String.valueOf(valueHours)).append(":").append(valueMinutes < 10 && valueMinutes > 0 ? "0".concat(String.valueOf(valueMinutes)) : valueMinutes).toString();
 		}else{
-			horas = "0:0";
+			hours = "0:0";
 		}
-		return horas;
+		return hours;
 	}
 	
-	public Double convertMinuteHourDouble(Integer minutos){
+	/**
+	 * This method converts minutes to hours.
+	 * 
+	 * @param Integer minutes
+	 * @return Double doubleHours
+	 */
+	public Double convertMinuteHourDouble(Integer minutes){
 		
-		StringBuilder tempo = new StringBuilder();
-		Integer valueHoras = minutos / 60;
-		Integer valueMinutos = minutos % 60;
-		String horas = minutos != null ? tempo.append(String.valueOf(valueHoras)).append(".").append(valueMinutos < 10 && valueMinutos > 0 ? "0".concat(String.valueOf(valueMinutos)) : valueMinutos).toString() : "0";
-		Double valor =  new Double(horas); 		
-		return valor;
+		StringBuilder time = new StringBuilder();
+		Integer hoursValue = minutes / 60;
+		Integer minutesValue = minutes % 60;
+		String stringHours = minutes != null ? time.append(String.valueOf(hoursValue)).append(".").append(minutesValue < 10 && minutesValue > 0 ? "0".concat(String.valueOf(minutesValue)) : minutesValue).toString() : "0";
+		Double doubleHours =  new Double(stringHours); 		
+		return doubleHours;
 	}	
 	
-	public String dateFormate(String data){
+	/**
+	 * This method formats the String date.
+	 * 
+	 * @param String date
+	 * @return String formatedDate
+	 */
+	public String dateFormate(String date){
 			StringBuilder dataFormatada = new StringBuilder();
-			return dataFormatada.append(data.subSequence(8,10)).append("/").append(data.subSequence(5,7)).append("/").append(data.subSequence(0,4)).append(" �s ").append(data.subSequence(11,16)).toString();
+			return dataFormatada.append(date.subSequence(8,10)).append("/").append(date.subSequence(5,7)).append("/").append(date.subSequence(0,4)).append(" �s ").append(date.subSequence(11,16)).toString();
 	}
 	
-	 public String getCurrentDateWithNuSlash() {
+	/**
+	 * This method get the
+	 * current date with no slash.
+	 * 
+	 * @return String 
+	 */
+	 public String getCurrentDateWithNoSlash() {
 		    GregorianCalendar gc = new GregorianCalendar();
 		    gc.setTime(new java.util.Date());
 
-		    String data = "";
-		    int ano = gc.get(Calendar.YEAR);
-		    int mes = gc.get(Calendar.MONTH) + 1;
-		    int dia = gc.get(Calendar.DAY_OF_MONTH);
+		    String stringDate = "";
+		    int year = gc.get(Calendar.YEAR);
+		    int month = gc.get(Calendar.MONTH) + 1;
+		    int day = gc.get(Calendar.DAY_OF_MONTH);
 
-		    data += ano;
-		    if (mes < 10) {
-		      data += "0";
+		    stringDate += year;
+		    if (month < 10) {
+		      stringDate += "0";
 		    }
-		    data += mes;
-		    if (dia < 10) {
-		      data += "0";
+		    stringDate += month;
+		    if (day < 10) {
+		      stringDate += "0";
 		    }
-		    data += dia;
+		    stringDate += day;
 
-		    return data;
+		    return stringDate;
 	 }
 	 
+	 /**
+	  * This method get the Current
+	  * Hour by the separator.
+	  * 
+	  * @return String hour
+	  */
 	 public String getCurrentHourBySeparator() {
 		    GregorianCalendar gc = new GregorianCalendar();
 		    gc.setTime(new java.util.Date());
 
-		    String hora = "";
+		    String hourString = "";
 		    int hour = gc.get(Calendar.HOUR_OF_DAY);
 		    int minute = gc.get(Calendar.MINUTE);
 		    int second = gc.get(Calendar.SECOND);
 
 		    if (hour < 10) {
-		      hora += "0";
+		      hourString += "0";
 		    }
-		    hora += hour;
+		    hourString += hour;
 		    if (minute < 10) {
-		      hora += "0";
+		      hourString += "0";
 		    }
-		    hora += minute;
+		    hourString += minute;
 		    if (second < 10) {
-		      hora += "0";
+		      hourString += "0";
 		    }
-		    hora += second;
+		    hourString += second;
 
-		    return hora;
+		    return hourString;
 	 }
 	 
-	public static boolean isDateBetween(Date dataInicio,Date dataFim, Date dataComparar) {
+	 /**
+	  * This method check if the
+	  * Date is between two other dates.
+	  * 
+	  * @param Date initialDate
+	  * @param Date finalDate
+	  * @param Date dateToCompare
+	  * @return boolean (true/false)
+	  */
+	public static boolean isDateBetween(Date initialDate,Date finalDate, Date dateToCompare) {
 
-		GregorianCalendar gcInicio = new GregorianCalendar();
-		if (dataInicio != null) {
-			gcInicio.setTime(dataInicio);
-			gcInicio.set(GregorianCalendar.HOUR_OF_DAY, 0);
+		GregorianCalendar initialGC = new GregorianCalendar();
+		if (initialDate != null) {
+			initialGC.setTime(initialDate);
+			initialGC.set(GregorianCalendar.HOUR_OF_DAY, 0);
 		}
 
-		GregorianCalendar gcFinal = new GregorianCalendar();
-		if (dataFim != null) {
-			gcFinal.setTime(dataFim);
-			gcFinal.set(GregorianCalendar.HOUR_OF_DAY, 24);
+		GregorianCalendar finalGC = new GregorianCalendar();
+		if (finalDate != null) {
+			finalGC.setTime(finalDate);
+			finalGC.set(GregorianCalendar.HOUR_OF_DAY, 24);
 		}
 
-		GregorianCalendar gcComparar = new GregorianCalendar();
-		gcComparar.setTime(dataComparar);
+		GregorianCalendar toCompareGC = new GregorianCalendar();
+		toCompareGC.setTime(dateToCompare);
 
-		boolean cond1 = dataInicio == null || gcComparar.after(gcInicio);
-		boolean cond2 = dataFim == null || gcFinal.after(gcComparar);
+		boolean cond1 = initialDate == null || toCompareGC.after(initialGC);
+		boolean cond2 = finalDate == null || finalGC.after(toCompareGC);
 
 		return cond1 && cond2;
 	}
