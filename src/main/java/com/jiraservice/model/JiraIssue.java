@@ -1,6 +1,7 @@
 package com.jiraservice.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -75,6 +76,7 @@ public class JiraIssue {
 	@Column
 	private Date dueDate; /*Datas Prevista finalização*/
 
+	private List<JiraTimesheet> worklogs;
 	
 	public JiraIssue() {
 
@@ -264,5 +266,13 @@ public class JiraIssue {
 
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
+	}
+
+	public List<JiraTimesheet> getWorklogs() {
+		return worklogs;
+	}
+
+	public void setWorklogs(List<JiraTimesheet> worklogs) {
+		this.worklogs = worklogs;
 	}
 }

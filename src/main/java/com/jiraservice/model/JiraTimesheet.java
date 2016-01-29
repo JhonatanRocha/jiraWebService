@@ -32,17 +32,22 @@ public class JiraTimesheet {
 	private String userName; /*Nome do Recurso*/
 	
 	@Column
-	private Date timeSpent; /*Horas Lançadas*/
+	private Integer timeSpent; /*Horas Lançadas*/
 	
 	@Column
 	private String comment; /*Comentários*/
 
-	public JiraTimesheet() {
-
+	public JiraTimesheet(String keyMap, String title, Date date, String userName, Integer timeSpent, String comment) {
+		this.keyMap = keyMap;
+		this.title = title;
+		this.date = date;
+		this.userName = userName;
+		this.timeSpent = timeSpent;
+		this.comment = comment;
 	}
 
 	public JiraTimesheet(long id, String keyMap, String title, Date date,
-			String userName, Date timeSpent, String comment) {
+			String userName, Integer timeSpent, String comment) {
 		this.id = id;
 		this.keyMap = keyMap;
 		this.title = title;
@@ -92,11 +97,11 @@ public class JiraTimesheet {
 		this.userName = userName;
 	}
 
-	public Date getTimeSpent() {
+	public Integer getTimeSpent() {
 		return timeSpent;
 	}
 	
-	public void setTimeSpent(Date timeSpent) {
+	public void setTimeSpent(Integer timeSpent) {
 		this.timeSpent = timeSpent;
 	}
 	

@@ -22,6 +22,7 @@ import com.atlassian.jira.rest.client.api.domain.Worklog;
 import com.jiraservice.model.JiraIssue;
 import com.jiraservice.model.JiraProject;
 import com.jiraservice.model.JiraResource;
+import com.jiraservice.model.JiraTimesheet;
 
 
 /**
@@ -338,5 +339,78 @@ public class JiraServices {
 		return (projectDate.isAfter(initialDate) && projectDate.isBefore(finalDate))
 				|| projectDate.equals(initialDate)
 				|| projectDate.equals(finalDate);
+	}
+
+	public JiraProject getJiraProject(String projectKey) {
+		
+		return null;
+	}
+	
+	public List<JiraProject> getJiraProjectBetweenDates(
+			String projectKey, DateTime initialDate, DateTime finalDate) {
+		
+		return null;
+	}
+	
+	public JiraIssue getJiraIssue(String issueKey) {
+		JiraIssue jiraIssue = null;
+		Issue issue = this.restClient.getIssueClient().getIssue(issueKey).claim();
+		
+		List<Worklog> worklogs = (List<Worklog>) issue.getWorklogs();
+		Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
+
+		if(issue.getAssignee() == null || issue.getIssueType().getName() == null){
+			//System.out.println(issue.getKey());
+		}else{
+			String creator = "";
+			int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
+			//IssueField sprintField = issue.getFieldByName("Sprint");
+			
+			Object workrate = issue.getField("workratio").getValue();
+			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
+			try {
+				creator = jsonIssueCreator.get("name").toString();
+			} catch (JSONException e) {
+				throw new RuntimeException(e);
+			}
+			/*int i = 0;
+			for (IssueField issueField : fields) {
+				Object value = issueField.getValue();
+				System.out.println("campo: " + i);
+				i++;
+			}*/
+			List<JiraTimesheet> worklogList = new ArrayList<JiraTimesheet>();
+			
+			jiraIssue = new JiraIssue(
+					issue.getKey(),
+					issue.getSummary(),
+					issue.getIssueType().getName(),
+					issue.getCreationDate().toDate(),
+					issue.getAssignee().getName(),
+					tempoEstimado,
+					getExecutedHourTotal(worklogs),
+					remainingTime,
+					issue.getStatus().getName(), 
+					Long.valueOf(workrate.toString()).longValue(),
+					creator);
+			
+			for (Worklog worklog : worklogs) {
+
+				worklogList.add(new JiraTimesheet(issue.getKey(), 
+													issue.getSummary(), 
+													worklog.getUpdateDate().toDate(), 
+													worklog.getUpdateAuthor().getDisplayName(),
+													worklog.getMinutesSpent(),
+													worklog.getComment()));
+			}
+		}
+		
+		return jiraIssue;
+	}
+
+	public List<JiraIssue> getJiraIssueBetweenDates(String issueKey,
+			DateTime dateTime, DateTime dateTime2) {
+
+		return null;
 	}
 }
