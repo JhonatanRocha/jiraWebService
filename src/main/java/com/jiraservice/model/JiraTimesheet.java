@@ -12,16 +12,15 @@ import javax.persistence.Column;
  *
  */
 
-@Entity
+@Entity(name="timesheet")
 public class JiraTimesheet {
 
 	@Id
 	private long id; /*ID do Projeto*/
 	
-	@Column
-	private String keyMap; /*Chave da Atividade*/
+	@Column(name="keyid")
+	private String key; /*Chave da Atividade*/
 	
-
 	@Column
 	private String title; /*Descrição da Atividade*/
 	
@@ -37,8 +36,8 @@ public class JiraTimesheet {
 	@Column
 	private String comment; /*Comentários*/
 
-	public JiraTimesheet(String keyMap, String title, Date date, String userName, Integer timeSpent, String comment) {
-		this.keyMap = keyMap;
+	public JiraTimesheet(String key, String title, Date date, String userName, Integer timeSpent, String comment) {
+		this.key = key;
 		this.title = title;
 		this.date = date;
 		this.userName = userName;
@@ -46,10 +45,10 @@ public class JiraTimesheet {
 		this.comment = comment;
 	}
 
-	public JiraTimesheet(long id, String keyMap, String title, Date date,
+	public JiraTimesheet(long id, String key, String title, Date date,
 			String userName, Integer timeSpent, String comment) {
 		this.id = id;
-		this.keyMap = keyMap;
+		this.key = key;
 		this.title = title;
 		this.date = date;
 		this.userName = userName;
@@ -66,11 +65,11 @@ public class JiraTimesheet {
 	}
 
 	public String getKey() {
-		return keyMap;
+		return key;
 	}
 
 	public void setKey(String key) {
-		this.keyMap = key;
+		this.key = key;
 	}
 
 	public String getTitle() {

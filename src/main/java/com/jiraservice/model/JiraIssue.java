@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import org.joda.time.DateTime;
 
@@ -17,13 +18,13 @@ import com.atlassian.jira.rest.client.api.domain.Status;
  *
  */
 
-@Entity
+@Entity(name="atividade")
 public class JiraIssue {
 
 	
 	@Id
-	@Column
-	private String keyMap; /*Chave da Atividade*/
+	@Column(name="keyid")
+	private String key; /*Chave da Atividade*/
 	
 	@Column
 	private long id; /*ID do Projeto*/
@@ -76,13 +77,14 @@ public class JiraIssue {
 	@Column
 	private Date dueDate; /*Datas Prevista finalização*/
 
-	private List<JiraTimesheet> worklogs;
+	@OneToMany
+	private List<JiraTimesheet> timesheets;
 	
 	public JiraIssue() {
 
 	}
 	
-	public JiraIssue(String keyMap, String summary, String issueType,
+	/*public JiraIssue(String keyMap, String summary, String issueType,
 			Date created, String resolution, Date resolved, Date updated,
 			String assigned, String status, Integer originalEstimate,
 			Integer timeSpent, Integer remainingEstimate, long workRatio,
@@ -104,13 +106,14 @@ public class JiraIssue {
 		this.creator = creator;
 		this.progress = progress;
 		this.dueDate = dueDate;
-	}
+	}*/
 
 	public JiraIssue(String key, String summary, String issueType,
 			Date creationDate, String assigned, Integer tempoEstimado,
-			Integer executedHourTotal,Integer remaningTime, String status, long workratio, String creator) {
+			Integer executedHourTotal,Integer remaningTime, String status, 
+			long workratio, String creator, List<JiraTimesheet> worklogs) {
 		
-		this.keyMap = key;
+		this.key = key;
 		this.summary = summary;
 		this.issueType = issueType;
 		this.created = creationDate;
@@ -121,7 +124,26 @@ public class JiraIssue {
 		this.status = status;
 		this.workRatio = workratio;
 		this.creator = creator;
+		this.timesheets = worklogs;
+	}
+	
+	public JiraIssue(String key, String summary, String issueType,
+			Date created, String assigned, Integer tempoEstimado,
+			Integer executedHourTotal,Integer remaningTime, String status, 
+			long workratio, String creator, String resolution) {
 		
+		this.key = key;
+		this.summary = summary;
+		this.issueType = issueType;
+		this.created = created;
+		this.assigned = assigned;
+		this.originalEstimate = tempoEstimado;
+		this.timeSpent = executedHourTotal;
+		this.remainingEstimate = remaningTime;
+		this.status = status;
+		this.workRatio = workratio;
+		this.creator = creator;
+		this.resolution = resolution;
 	}
 
 	public long getId() {
@@ -132,12 +154,12 @@ public class JiraIssue {
 		this.id = id;
 	}
 
-	public String getKeyMap() {
-		return keyMap;
+	public String getKey() {
+		return key;
 	}
 
-	public void setKeyMap(String key) {
-		this.keyMap = key;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
 	public String getSummary() {
@@ -268,11 +290,11 @@ public class JiraIssue {
 		this.dueDate = dueDate;
 	}
 
-	public List<JiraTimesheet> getWorklogs() {
-		return worklogs;
+	public List<JiraTimesheet> getTimesheets() {
+		return timesheets;
 	}
 
-	public void setWorklogs(List<JiraTimesheet> worklogs) {
-		this.worklogs = worklogs;
+	public void setTimesheets(List<JiraTimesheet> timesheets) {
+		this.timesheets = timesheets;
 	}
 }

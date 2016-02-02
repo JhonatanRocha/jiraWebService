@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Column;
+import javax.persistence.OneToMany;
 
 /**
  * 
@@ -13,14 +14,15 @@ import javax.persistence.Column;
  *
  */
 
-@Entity 
+@Entity(name="projeto")
 public class JiraProject {
 
 	@Id
-	private long id; /*ID do Projeto*/
-	
-	@Column(name="KEYID")
+	@Column(name="keyid")
 	private String key;
+	
+	@Column
+	private long id; /*ID do Projeto*/
 	
 	@Column
 	private String project; /*Descrição do Projeto*/
@@ -28,7 +30,8 @@ public class JiraProject {
 	@Column
 	private Date dataCreate; /*Data da Criação*/
 	
-	private List<JiraIssue> issues;
+	@OneToMany
+	private List<JiraIssue> atividades;
 
 	public JiraProject() {
 		
@@ -72,11 +75,11 @@ public class JiraProject {
 		this.key = key;
 	}
 	
-	public List<JiraIssue> getIssues() {
-		return issues;
+	public List<JiraIssue> getAtividades() {
+		return atividades;
 	}
 
-	public void setIssues(List<JiraIssue> issues) {
-		this.issues = issues;
+	public void setAtividades(List<JiraIssue> atividades) {
+		this.atividades = atividades;
 	}
 }

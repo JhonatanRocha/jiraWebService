@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 
 import org.joda.time.DateTime;
 
@@ -45,23 +47,49 @@ public class ReportBean {
 	 * projects from JIRA
 	 */
 	public void searchProjects() {
+		long startTime = System.currentTimeMillis();
 		System.out.println("Buscando Projetos... " + new DateTime().toString());
 
 		try {
-			if(this.projectKey.isEmpty() && !this.selectedCompany.name().isEmpty()) {
+			if(this.projectKey.isEmpty() && !this.selectedCompany.name().equals("NENHUM")) {
 				if(this.dataInicial == null && this.dataFinal == null) {
 					this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());
+					
+					if(this.projetos.size() > 0){
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
+					}else{
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
+					}
 				}else{
-					this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
+					if(this.dataFinal.after(this.dataInicial)){
+						this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
+						if(this.projetos.size() > 0){
+							FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
+						}else{
+							FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
+						}
+					}else{
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
+					}
 				}
-			}else if(this.projectKey.isEmpty() && this.selectedCompany.name().isEmpty()) {
+			}else if(this.projectKey.isEmpty() && this.selectedCompany.name().equals("NENHUM")) {
 				//TODO: Solução para filtrar projetos através de texto.
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Selecione um Cliente ou Digite a Chave do Projeto"));
 			}else{
+				this.projetos = new ArrayList<JiraProject>();
 				this.projetos.add(this.jiraServices.getJiraProject(this.projectKey));
+				
+				if(this.projetos.size() > 0){
+					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Projeto encontrado!"));
+				}else{
+					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
+				}
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, verifique a pesquisa realizada."));
 		}
+		long endTime   = System.currentTimeMillis();
+		System.out.println("Execução demorou: " + (endTime - startTime)/1000 + " segundos.");
 	}
 	
 	public void searchIssues() {

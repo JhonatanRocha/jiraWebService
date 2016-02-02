@@ -12,7 +12,7 @@ import javax.persistence.Column;
  *
  */
 
-@Entity
+@Entity(name="recurso")
 public class JiraResource {
 	
 	@Id

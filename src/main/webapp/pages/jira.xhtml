@@ -25,14 +25,10 @@
 						  	</h:panelGrid>
 						</f:facet>
 						<p:tabView>
-							<p:tab title="Atividades">
+							<p:tab title="Worklogs">
 								<fieldset>
-									<legend>Pesquisar as Atividades no JIRA</legend>
-								    <h:panelGrid columns="4">	
-								     	<h:outputLabel value="Data Inicial:"/>
-								     	<p:calendar locale="pt" value="#{reportBean.issueInitialDate}" effect="fold" showOn="button"/>
-								     	<h:outputLabel value="Data Final:"/>
-								     	<p:calendar locale="pt" value="#{reportBean.issueFinalDate}" effect="fold" showOn="button"/>
+									<legend>Worklogs da a Atividade</legend>
+								    <h:panelGrid columns="2">	
 								     	<h:outputLabel value="Key da Atividade:"/>
 								     	<h:inputText id="issueKey" value="#{reportBean.issueKey}"/>
 										<p:spacer width="10" height="10" />
@@ -43,47 +39,71 @@
 								<br/>
 								<br/>
 								<hr/>
-								<p:panel header="Atividades" id="issueResults" style="border:0px;">
-									<!-- <p:dataTable value="#{reportBean.atividades}" var="iss"
+								<p:panel header="Atividade" id="issueResults" style="border:0px;">
+									<p:dataTable value="#{reportBean.atividades}" var="iss"
 											rendered="#{not empty reportBean.atividades}"
 											rowKey="#{iss.key}" resizableColumns="true" reflow="true" rows="3" paginator="true" emptyMessage="Nenhum projeto encontrado">
+										<p:column style="width:16px">
+								            <p:rowToggler />
+								        </p:column>
 										<p:column headerText="Atividade" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.summary}" 
-													escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-												<p:column headerText="Status" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.status}" 
-													escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-												<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.assigned}" 
-													escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-												<p:column headerText="Tempo Estimado" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.originalEstimate}" 
-													escape="false" style="white-space: pre-line; font-size: small;"/>
+											<h:outputText value="#{iss.summary}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.key}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										<p:column headerText="Status" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.status}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.assigned}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										<p:column headerText="Tempo Estimado" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.originalEstimate}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.timeSpent}h" 
+											escape="false" style="white-space: pre-line; font-size: small;">
+											</h:outputText>
+										</p:column>
+										<p:column headerText="Tempo Restante" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.remainingEstimate}" 
+											escape="false" style="white-space: pre-line; font-size: small;">
+											</h:outputText>
+										</p:column>
+										<p:column headerText="Work Ratio" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.workRatio}" escape="false" style="white-space: pre-line; font-size: small;">
+											</h:outputText>
+										</p:column>
+										<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{iss.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										
+										<p:rowExpansion>
+											<p:dataTable value="#{iss.timesheets}" var="worklog" rendered="#{not empty iss.timesheets}">
+												<p:column headerText="Usuário" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
 												<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.timeSpent}" 
-													escape="false" style="white-space: pre-line; font-size: small;">
-													</h:outputText>
+													<h:outputText value="#{worklog.timeSpent}h" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tempo Restante" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.remainingEstimate}" 
-													escape="false" style="white-space: pre-line; font-size: small;">
-													</h:outputText>
+												<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Work Ratio" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.workRatio}" escape="false" style="white-space: pre-line; font-size: small;">
-													</h:outputText>
+												<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{iss.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>	
-									</p:dataTable> -->
+											</p:dataTable>
+										</p:rowExpansion>
+									</p:dataTable>
 								</p:panel>
 							</p:tab>
-							<p:tab title="Projetos">
+							<p:tab title="Projetos e Atividades">
 								<fieldset>
 									<legend>Pesquisar os Projetos no JIRA</legend>
 								    <h:panelGrid columns="4">	
@@ -104,50 +124,79 @@
 								<br/>
 								<hr/>
 								<p:panel header="Projetos" id="projectResults" style="border:0px;">
+									<p:messages id="messages" />
 									<p:dataTable value="#{reportBean.projetos}" var="pro"
 											rendered="#{not empty reportBean.projetos}"
-											rowKey="#{pro.key}" resizableColumns="true" reflow="true" rows="3" paginator="true" emptyMessage="Nenhum projeto encontrado">
-										<p:column headerText="Projeto" width="10%" style="white-space: pre-line; font-size: small;">
+											rowKey="#{pro.key}" resizableColumns="true" reflow="true" rows="5" paginator="true" emptyMessage="Nenhum projeto encontrado">
+										<p:column style="width:16px">
+								            <p:rowToggler />
+								        </p:column>
+										<p:column headerText="Projeto" style="white-space: pre-line; font-size: small;">
 											<h:outputText value="#{pro.project}" 
 											escape="false" style="white-space: pre-line; font-size: small;"/>
 										</p:column>
-										<p:column headerText="Atividades" style="white-space: pre-line; font-size: small;">
-											<p:dataTable value="#{pro.issues}" var="issue" rendered="#{not empty pro.issues}">
+										<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{pro.key}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										<p:column headerText="Data de Criação" style="white-space: pre-line; font-size: small;">
+											<h:outputText value="#{pro.dataCreate}" 
+											escape="false" style="white-space: pre-line; font-size: small;"/>
+										</p:column>
+										
+										<p:rowExpansion>
+											<p:dataTable value="#{pro.atividades}" var="issue" rendered="#{not empty pro.atividades}">
 												<p:column headerText="Atividade" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.summary}" 
+														escape="false" style="white-space: pre-line; font-size: small;"/>
+												</p:column>
+												<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{issue.assigned}" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
 												<p:column headerText="Status" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.status}" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{issue.assigned}" 
-													escape="false" style="white-space: pre-line; font-size: small;"/>
+												<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{issue.key}" 
+														escape="false" style="white-space: pre-line; font-size: small;"/>
+												</p:column>
+												<p:column headerText="Tipo" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{issue.issueType}" 
+														escape="false" style="white-space: pre-line; font-size: small;"/>
+												</p:column>
+												<p:column headerText="Data Criação" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{issue.created}" 
+														escape="false" style="white-space: pre-line; font-size: small;"/>
+												</p:column>
+												<p:column headerText="Resolução" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{issue.resolution}" 
+														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
 												<p:column headerText="Tempo Estimado" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{issue.originalEstimate}" 
+													<h:outputText value="#{issue.originalEstimate}h" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
 												<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{issue.timeSpent}" 
+													<h:outputText value="#{issue.timeSpent}h" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
 												<p:column headerText="Tempo Restante" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{issue.remainingEstimate}" 
+													<h:outputText value="#{issue.remainingEstimate}h" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
 												<p:column headerText="Work Ratio" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{issue.workRatio}" escape="false" style="white-space: pre-line; font-size: small;">
+													<h:outputText value="#{issue.workRatio}%" escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
 												<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>	
 											</p:dataTable>
-										</p:column>
+										</p:rowExpansion>
 									</p:dataTable>
 								</p:panel>
 							</p:tab>
