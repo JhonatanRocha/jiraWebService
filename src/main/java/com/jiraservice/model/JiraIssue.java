@@ -111,7 +111,7 @@ public class JiraIssue {
 	public JiraIssue(String key, String summary, String issueType,
 			Date creationDate, String assigned, Integer tempoEstimado,
 			Integer executedHourTotal,Integer remaningTime, String status, 
-			long workratio, String creator, List<JiraTimesheet> worklogs) {
+			long workratio, String creator, String resolution, List<JiraTimesheet> worklogs) {
 		
 		this.key = key;
 		this.summary = summary;
@@ -124,6 +124,7 @@ public class JiraIssue {
 		this.status = status;
 		this.workRatio = workratio;
 		this.creator = creator;
+		this.resolution = resolution;
 		this.timesheets = worklogs;
 	}
 	

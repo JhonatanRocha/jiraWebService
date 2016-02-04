@@ -128,7 +128,7 @@
 									<p:dataTable value="#{reportBean.projetos}" var="pro"
 											rendered="#{not empty reportBean.projetos}"
 											rowKey="#{pro.key}" resizableColumns="true" reflow="true" rows="5" paginator="true" emptyMessage="Nenhum projeto encontrado">
-										<p:column style="width:16px">
+									 	<p:column style="width:16px">
 								            <p:rowToggler />
 								        </p:column>
 										<p:column headerText="Projeto" style="white-space: pre-line; font-size: small;">
@@ -145,7 +145,13 @@
 										</p:column>
 										
 										<p:rowExpansion>
-											<p:dataTable value="#{pro.atividades}" var="issue" rendered="#{not empty pro.atividades}">
+											<p:dataTable value="#{pro.atividades}" rows="5" paginator="true" var="issue" rendered="#{not empty pro.atividades}">
+												<f:facet name="header">
+													<h:outputText value="Atividades do Projeto: #{pro.key}"/>
+												</f:facet>
+												<p:column style="width:16px">
+										            <p:rowToggler />
+										        </p:column>
 												<p:column headerText="Atividade" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.summary}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
@@ -194,7 +200,27 @@
 												</p:column>
 												<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>	
+												</p:column>
+												
+												<p:rowExpansion>
+													<p:dataTable value="#{issue.timesheets}" var="worklog" rows="10" paginator="true" rendered="#{not empty issue.timesheets}">
+														<f:facet name="header">
+															<h:outputText value="Worklogs da Atividade: #{issue.key}"/>
+														</f:facet>
+														<p:column headerText="Usuário" style="white-space: pre-line; font-size: small;">
+															<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
+														</p:column>
+														<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
+															<h:outputText value="#{worklog.timeSpent}h" escape="false" style="white-space: pre-line; font-size: small;"/>
+														</p:column>
+														<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
+															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;"/>
+														</p:column>
+														<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
+															<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>
+														</p:column>
+													</p:dataTable>
+												</p:rowExpansion>
 											</p:dataTable>
 										</p:rowExpansion>
 									</p:dataTable>

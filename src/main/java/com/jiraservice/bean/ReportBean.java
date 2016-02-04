@@ -42,75 +42,6 @@ public class ReportBean {
 		this.jiraServices = new JiraServices();
 	}
 	
-	/**
-	 * This method search the
-	 * projects from JIRA
-	 */
-	public void searchProjects() {
-		long startTime = System.currentTimeMillis();
-		System.out.println("Buscando Projetos... " + new DateTime().toString());
-
-		try {
-			if(this.projectKey.isEmpty() && !this.selectedCompany.name().equals("NENHUM")) {
-				if(this.dataInicial == null && this.dataFinal == null) {
-					this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());
-					
-					if(this.projetos.size() > 0){
-						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
-					}else{
-						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-					}
-				}else{
-					if(this.dataFinal.after(this.dataInicial)){
-						this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
-						if(this.projetos.size() > 0){
-							FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
-						}else{
-							FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-						}
-					}else{
-						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
-					}
-				}
-			}else if(this.projectKey.isEmpty() && this.selectedCompany.name().equals("NENHUM")) {
-				//TODO: Solução para filtrar projetos através de texto.
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Selecione um Cliente ou Digite a Chave do Projeto"));
-			}else{
-				this.projetos = new ArrayList<JiraProject>();
-				this.projetos.add(this.jiraServices.getJiraProject(this.projectKey));
-				
-				if(this.projetos.size() > 0){
-					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Projeto encontrado!"));
-				}else{
-					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-				}
-			}
-		} catch (Exception e) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, verifique a pesquisa realizada."));
-		}
-		long endTime   = System.currentTimeMillis();
-		System.out.println("Execução demorou: " + (endTime - startTime)/1000 + " segundos.");
-	}
-	
-	public void searchIssues() {
-		System.out.println("Buscando Atividades... " + new DateTime().toString());
-
-		if(this.issueKey.isEmpty()) {
-			/*if(this.issueInitialDate == null && this.issueFinalDate == null) {
-				//this.atividades = this.jiraServices.;	
-			} else {
-				//this.atividades = this.jiraServices.getIssuesBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
-			}*/
-		} else {
-			this.atividades = new ArrayList<JiraIssue>();
-			this.atividades.add(this.jiraServices.getJiraIssue(this.issueKey));
-		}
-	}
-	
-	public Company[] getCompanies(){
-        return Company.values();  
-	}
-	
 	public JiraServices getJiraServices() {
 		return jiraServices;
 	}
@@ -189,5 +120,82 @@ public class ReportBean {
 
 	public void setIssueFinalDate(Date issueFinalDate) {
 		this.issueFinalDate = issueFinalDate;
+	}
+	
+	public Company[] getCompanies(){
+        return Company.values();  
+	}
+	
+	public void searchIssues() {
+		System.out.println("Buscando Atividades... " + new DateTime().toString());
+
+		if(!this.issueKey.isEmpty()) {
+			this.atividades = new ArrayList<JiraIssue>();
+			this.atividades.add(this.jiraServices.getJiraIssue(this.issueKey));
+		} else {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Digite a chave da Atividade."));
+		}
+	}
+	
+	/**
+	 * This method search the
+	 * projects from JIRA
+	 */
+	public void searchProjects() {
+		long startTime = System.currentTimeMillis();
+
+		try {
+			if(this.projectKey.isEmpty() && !this.selectedCompany.name().equals("NENHUM")) {
+				if(this.dataInicial == null && this.dataFinal == null) {
+					searchProjectsByClient();
+				}else{
+					searchProjectsBetweenDates();
+				}
+			}else if(this.projectKey.isEmpty() && this.selectedCompany.name().equals("NENHUM")) {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Selecione um Cliente ou Digite a Chave do Projeto"));
+			}else{
+				searchProjectByKey();
+			}
+		} catch (Exception e) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, verifique a pesquisa realizada."));
+		}
+		long endTime   = System.currentTimeMillis();
+		System.out.println("Execução demorou: " + (endTime - startTime)/1000 + " segundos.");
+	}
+
+	private void searchProjectByKey() {
+		this.projetos = new ArrayList<JiraProject>();
+		this.projetos.add(this.jiraServices.getJiraProject(this.projectKey));
+		
+		if(this.projetos.size() > 0){
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Projeto encontrado!"));
+		}else{
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
+		}
+	}
+
+	private void searchProjectsBetweenDates() throws InterruptedException,
+			ExecutionException {
+		if(this.dataFinal.after(this.dataInicial)){
+			this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
+			if(this.projetos.size() > 0){
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
+			}else{
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
+			}
+		}else{
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
+		}
+	}
+
+	private void searchProjectsByClient() throws InterruptedException,
+			ExecutionException {
+		this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());
+		
+		if(this.projetos.size() > 0){
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
+		}else{
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
+		}
 	}
 }
