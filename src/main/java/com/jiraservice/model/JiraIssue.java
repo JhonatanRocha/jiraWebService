@@ -3,8 +3,10 @@ package com.jiraservice.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -111,7 +113,7 @@ public class JiraIssue {
 	public JiraIssue(String key, String summary, String issueType,
 			Date creationDate, String assigned, Integer tempoEstimado,
 			Integer executedHourTotal,Integer remaningTime, String status, 
-			long workratio, String creator, String resolution, List<JiraTimesheet> worklogs) {
+			long workratio, String creator, String resolution, long id, List<JiraTimesheet> worklogs) {
 		
 		this.key = key;
 		this.summary = summary;
@@ -125,6 +127,7 @@ public class JiraIssue {
 		this.workRatio = workratio;
 		this.creator = creator;
 		this.resolution = resolution;
+		this.id = id;
 		this.timesheets = worklogs;
 	}
 	

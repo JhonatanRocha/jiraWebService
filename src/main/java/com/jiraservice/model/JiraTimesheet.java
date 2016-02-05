@@ -3,6 +3,8 @@ package com.jiraservice.model;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Column;
 
@@ -14,12 +16,16 @@ import javax.persistence.Column;
 
 @Entity(name="timesheet")
 public class JiraTimesheet {
-
+	
 	@Id
-	private long id; /*ID do Projeto*/
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long idTimesheet;
 	
 	@Column(name="keyid")
 	private String key; /*Chave da Atividade*/
+	
+	@Column
+	private long id; /*ID do Projeto*/
 	
 	@Column
 	private String title; /*Descrição da Atividade*/
@@ -54,6 +60,14 @@ public class JiraTimesheet {
 		this.userName = userName;
 		this.timeSpent = timeSpent;
 		this.comment = comment;
+	}
+
+	public long getIdTimesheet() {
+		return idTimesheet;
+	}
+
+	public void setIdTimesheet(long idTimesheet) {
+		this.idTimesheet = idTimesheet;
 	}
 
 	public long getId() {

@@ -1,7 +1,9 @@
 package com.jiraservice.utility;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +42,7 @@ public class JiraServices {
 	private List<JiraResource> recursos;
 	private Iterable<BasicProject> allBasicProjects;
     
-	public JiraServices(){
+	public JiraServices() {
 		
 		this.jiraUtil = new JiraUtil();
 		this.restClient = jiraUtil.createClient();
@@ -192,6 +194,7 @@ public class JiraServices {
 						Long.valueOf(workrate.toString()).longValue(),
 						creator,
 						resolution,
+						issue.getProject().getId(),
 						worklogList);
 				
 				if(issue.getDueDate() != null){					
@@ -277,6 +280,7 @@ public class JiraServices {
 					JiraProject jiraproject = new JiraProject();
 					jiraproject.setKey(project.getKey());
 					jiraproject.setProject(project.getName());
+					jiraproject.setId(project.getId());
 					projects.add(jiraproject);
 				}
 			}
@@ -445,6 +449,7 @@ public class JiraServices {
 					Long.valueOf(workrate.toString()).longValue(),
 					creator,
 					resolution,
+					issue.getProject().getId(),
 					worklogList);
 			
 			if(issue.getDueDate() != null){					
@@ -453,5 +458,87 @@ public class JiraServices {
 
 		}
 		return jiraIssue;
+	}
+	
+	public JiraProject test(String issueKey) {
+		String assignedUser = "";
+		String issueType = "";
+		String resolution = "";
+		String creator = "";
+		JiraIssue jiraIssue = null;
+		JiraProject jiraProject = new JiraProject();
+		Issue issue = this.restClient.getIssueClient().getIssue(issueKey).claim();
+		
+		List<Worklog> worklogs = (List<Worklog>) issue.getWorklogs();
+		Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
+
+		if(issue.getAssignee() != null){
+
+			assignedUser = issue.getAssignee().getName();
+			
+			if(issue.getIssueType() != null){
+				issueType = issue.getIssueType().getName();
+			}
+			
+			if(issue.getResolution() != null){
+				resolution = issue.getResolution().getName();
+			}
+				
+			int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
+			//IssueField sprintField = issue.getFieldByName("Sprint");
+			
+			Object workrate = issue.getField("workratio").getValue();
+			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
+			try {
+				creator = jsonIssueCreator.get("name").toString();
+			} catch (JSONException e) {
+				throw new RuntimeException(e);
+			}
+			/*int i = 0;
+			for (IssueField issueField : fields) {
+				Object value = issueField.getValue();
+				System.out.println("campo: " + i);
+				i++;
+			}*/
+			
+			List<JiraTimesheet> worklogList = new ArrayList<JiraTimesheet>();
+			
+			for (Worklog worklog : worklogs) {
+				
+				worklogList.add(new JiraTimesheet(issue.getKey(), 
+						issue.getSummary(), 
+						worklog.getUpdateDate().toDate(), 
+						worklog.getUpdateAuthor().getDisplayName(),
+						(worklog.getMinutesSpent() / 60),
+						worklog.getComment()));
+			}
+			
+			jiraIssue = new JiraIssue(
+					issue.getKey(),
+					issue.getSummary(),
+					issueType,
+					issue.getCreationDate().toDate(),
+					assignedUser,
+					tempoEstimado,
+					getExecutedHourTotal(worklogs),
+					remainingTime,
+					issue.getStatus().getName(), 
+					Long.valueOf(workrate.toString()).longValue(),
+					creator,
+					resolution,
+					issue.getProject().getId(),
+					worklogList);
+			
+			if(issue.getDueDate() != null){					
+				jiraIssue.setDueDate(issue.getDueDate().toDate());
+			}
+			JiraIssue[] jiraissues = new JiraIssue[] {jiraIssue};
+			jiraProject.setAtividades(Arrays.asList(jiraissues));
+			jiraProject.setProject();
+			jiraProject.setId();
+			jiraProject.setKey();
+			jiraProject.setDataCreate();
+		}
+		return jiraProject;
 	}
 }
