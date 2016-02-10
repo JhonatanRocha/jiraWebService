@@ -39,7 +39,7 @@ public class JiraTimesheet {
 	@Column
 	private Integer timeSpent; /*Horas Lançadas*/
 	
-	@Column
+	@Column(length = 500)
 	private String comment; /*Comentários*/
 
 	public JiraTimesheet(String key, String title, Date date, String userName, Integer timeSpent, String comment) {

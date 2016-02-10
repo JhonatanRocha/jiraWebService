@@ -6,7 +6,7 @@ import javax.persistence.Persistence;
 
 public class JPAUtil {
 
-	private static EntityManagerFactory emf = Persistence
+	private EntityManagerFactory emf = Persistence
 			.createEntityManagerFactory("jiraextraction");
 
 	public EntityManager getEntityManager() {

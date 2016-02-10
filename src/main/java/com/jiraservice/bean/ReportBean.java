@@ -14,7 +14,6 @@ import javax.faces.context.FacesContext;
 import org.joda.time.DateTime;
 
 import com.jiraservice.dao.DAO;
-import com.jiraservice.dao.JiraProjectDAO;
 import com.jiraservice.model.JiraIssue;
 import com.jiraservice.model.JiraProject;
 import com.jiraservice.utility.Company;
@@ -157,10 +156,15 @@ public class ReportBean {
 		System.out.println("Buscando Atividades... " + new DateTime().toString());
 
 		if(!this.issueKey.isEmpty()) {
-			this.atividades = new ArrayList<JiraIssue>();
-			this.atividades.add(this.jiraServices.getJiraIssue(this.issueKey));
+			/*this.atividades = new ArrayList<JiraIssue>();
+			this.atividades.add(this.jiraServices.getJiraIssue(this.issueKey));*/
+			this.projetos = new ArrayList<>(); 
+			this.projetos.add(this.jiraServices.getProjectFromIssueKey(this.issueKey));
+			
 			try {
-				new DAO(this.jiraServices.getAllResources()).insert(this.projetos);
+				if(!this.projetos.isEmpty()){
+					new DAO().insert(this.projetos);
+				}
 			} catch (Exception e) {
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, na transação com o Banco de dados."));
 			}
@@ -201,7 +205,7 @@ public class ReportBean {
 		
 		if(this.projetos.size() > 0){
 			try {
-				new DAO(this.jiraServices.getAllResources()).insert(this.projetos);
+				new DAO().insert(this.projetos);
 			} catch (Exception e) {
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, na transação com o Banco de dados."));
 			}
@@ -217,7 +221,7 @@ public class ReportBean {
 			this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.name(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
 			
 			if(this.projetos.size() > 0){
-				new DAO(this.jiraServices.getAllResources()).insert(this.projetos);
+				new DAO().insert(this.projetos);
 				/*JiraProjectDAO projectDAO = new JiraProjectDAO();
 				JiraIssueDAO jiraIssueDAO = new JiraIssueDAO();
 				JiraTimesheetDAO jiraTimesheetDAO = new JiraTimesheetDAO();
@@ -245,7 +249,7 @@ public class ReportBean {
 		this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.name());
 		
 		if(this.projetos.size() > 0){
-			new DAO(this.jiraServices.getAllResources()).insert(this.projetos);
+			new DAO().insert(this.projetos);
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
 		}else{
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));

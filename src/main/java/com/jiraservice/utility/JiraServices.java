@@ -21,6 +21,7 @@ import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.api.domain.Worklog;
+import com.jiraservice.dao.DAO;
 import com.jiraservice.model.JiraIssue;
 import com.jiraservice.model.JiraProject;
 import com.jiraservice.model.JiraResource;
@@ -48,6 +49,7 @@ public class JiraServices {
 		this.restClient = jiraUtil.createClient();
 		try {
 			this.recursos = getAllResources();
+			new DAO().insertResources(this.recursos);
 			this.allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
 		} catch (Exception e) {
 			throw new RuntimeException();
@@ -201,6 +203,10 @@ public class JiraServices {
 					jiraIssue.setDueDate(issue.getDueDate().toDate());
 				}
 				
+				if(issue.getUpdateDate() != null){
+					jiraIssue.setUpdated(issue.getUpdateDate().toDate());
+				}
+				
 				jiraIssues.add(jiraIssue);
 			}
 		}
@@ -319,12 +325,12 @@ public class JiraServices {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-    public List<User> getAllUsers(String projectKey) throws InterruptedException, ExecutionException{
+    public List<User> getAllUsers(String projectKey) throws InterruptedException, ExecutionException {
     	List<Issue> issues = getAllIssuesFromProject(projectKey);
     	List<User> projectUsers = new ArrayList<User>();
     	
     	for (Issue issue : issues) {
-			if(issue.getSummary().contains("Sem Demanda")){
+			if(issue.getSummary().contains("Sem Demanda")) {
 				projectUsers.add(issue.getAssignee());
 			}
 		}
@@ -338,7 +344,7 @@ public class JiraServices {
      * @param List of Worklog from JIRA
      * @return total time spent
      */
-    public Integer getExecutedHourTotal(List<Worklog> worklogs){
+    public Integer getExecutedHourTotal(List<Worklog> worklogs) {
 		Integer total = 0;
 		for (Worklog worklog : worklogs) {
 			total += worklog.getMinutesSpent();
@@ -356,7 +362,7 @@ public class JiraServices {
      * @param DateTime finalDate
      * @return boolean value (true/false)
      */
-    public boolean validateProjectDate(DateTime projectDate, DateTime initialDate, DateTime finalDate){
+    public boolean validateProjectDate(DateTime projectDate, DateTime initialDate, DateTime finalDate) {
 		
 		return (projectDate.isAfter(initialDate) && projectDate.isBefore(finalDate))
 				|| projectDate.equals(initialDate)
@@ -384,83 +390,7 @@ public class JiraServices {
 		return jiraproject;
 	}
 	
-	public JiraIssue getJiraIssue(String issueKey) {
-		String assignedUser = "";
-		String issueType = "";
-		String resolution = "";
-		String creator = "";
-		JiraIssue jiraIssue = null;
-		Issue issue = this.restClient.getIssueClient().getIssue(issueKey).claim();
-		
-		List<Worklog> worklogs = (List<Worklog>) issue.getWorklogs();
-		Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
-
-		if(issue.getAssignee() != null){
-
-			assignedUser = issue.getAssignee().getName();
-			
-			if(issue.getIssueType() != null){
-				issueType = issue.getIssueType().getName();
-			}
-			
-			if(issue.getResolution() != null){
-				resolution = issue.getResolution().getName();
-			}
-				
-			int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
-			//IssueField sprintField = issue.getFieldByName("Sprint");
-			
-			Object workrate = issue.getField("workratio").getValue();
-			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
-			try {
-				creator = jsonIssueCreator.get("name").toString();
-			} catch (JSONException e) {
-				throw new RuntimeException(e);
-			}
-			/*int i = 0;
-			for (IssueField issueField : fields) {
-				Object value = issueField.getValue();
-				System.out.println("campo: " + i);
-				i++;
-			}*/
-			
-			List<JiraTimesheet> worklogList = new ArrayList<JiraTimesheet>();
-			
-			for (Worklog worklog : worklogs) {
-				
-				worklogList.add(new JiraTimesheet(issue.getKey(), 
-						issue.getSummary(), 
-						worklog.getUpdateDate().toDate(), 
-						worklog.getUpdateAuthor().getDisplayName(),
-						(worklog.getMinutesSpent() / 60),
-						worklog.getComment()));
-			}
-			
-			jiraIssue = new JiraIssue(
-					issue.getKey(),
-					issue.getSummary(),
-					issueType,
-					issue.getCreationDate().toDate(),
-					assignedUser,
-					tempoEstimado,
-					getExecutedHourTotal(worklogs),
-					remainingTime,
-					issue.getStatus().getName(), 
-					Long.valueOf(workrate.toString()).longValue(),
-					creator,
-					resolution,
-					issue.getProject().getId(),
-					worklogList);
-			
-			if(issue.getDueDate() != null){					
-				jiraIssue.setDueDate(issue.getDueDate().toDate());
-			}
-
-		}
-		return jiraIssue;
-	}
-	
-	public JiraProject test(String issueKey) {
+	public JiraProject getProjectFromIssueKey(String issueKey) {
 		String assignedUser = "";
 		String issueType = "";
 		String resolution = "";
@@ -532,12 +462,15 @@ public class JiraServices {
 			if(issue.getDueDate() != null){					
 				jiraIssue.setDueDate(issue.getDueDate().toDate());
 			}
+			
+			jiraIssue.setUpdated(issue.getUpdateDate().toDate());
+			
 			JiraIssue[] jiraissues = new JiraIssue[] {jiraIssue};
 			jiraProject.setAtividades(Arrays.asList(jiraissues));
-			jiraProject.setProject();
-			jiraProject.setId();
-			jiraProject.setKey();
-			jiraProject.setDataCreate();
+			jiraProject.setProject(issue.getProject().getName());
+			jiraProject.setId(issue.getId());
+			jiraProject.setKey(issue.getProject().getKey());
+			jiraProject.setDataCreate(issue.getCreationDate().toDate());
 		}
 		return jiraProject;
 	}
