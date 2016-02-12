@@ -33,7 +33,6 @@ public class ReportBean {
 	private List<JiraIssue> atividades;
 	private Date issueInitialDate;
 	private Date issueFinalDate;
-	//private List<BarChartModel> animatedBarChart;
 
 	/**
 	 * This method is executed every time
@@ -127,37 +126,11 @@ public class ReportBean {
 	public Company[] getCompanies(){
         return Company.values();  
 	}
-	
-	/*public List<BarChartModel> getAnimatedBarChart() {
-		return animatedBarChart;
-	}
-
-	public void setAnimatedBarChart(List<BarChartModel> animatedBarChart) {
-		this.animatedBarChart = animatedBarChart;
-	}
-	
-	private void createAnimatedModels() {
-         
-        animatedModel2 = initBarModel();
-        animatedModel2.setTitle("Bar Charts");
-        animatedModel2.setAnimate(true);
-        animatedModel2.setLegendPosition("ne");
-        yAxis = animatedModel2.getAxis(AxisType.Y);
-        yAxis.setMin(0);
-        yAxis.setMax(200);
-    }
-
-	private BarChartModel initBarModel() {
-		
-		return null;
-	}*/
 
 	public void searchIssues() {
 		System.out.println("Buscando Atividades... " + new DateTime().toString());
 
 		if(!this.issueKey.isEmpty()) {
-			/*this.atividades = new ArrayList<JiraIssue>();
-			this.atividades.add(this.jiraServices.getJiraIssue(this.issueKey));*/
 			this.projetos = new ArrayList<>(); 
 			this.projetos.add(this.jiraServices.getProjectFromIssueKey(this.issueKey));
 			
@@ -222,19 +195,6 @@ public class ReportBean {
 			
 			if(this.projetos.size() > 0){
 				new DAO().insert(this.projetos);
-				/*JiraProjectDAO projectDAO = new JiraProjectDAO();
-				JiraIssueDAO jiraIssueDAO = new JiraIssueDAO();
-				JiraTimesheetDAO jiraTimesheetDAO = new JiraTimesheetDAO();
-
-				for (JiraProject jiraProject : this.projetos) {
-					for (JiraIssue jiraIssue : jiraProject.getAtividades()) {
-						for(JiraTimesheet jiraTimesheet : jiraIssue.getTimesheets()){
-							jiraTimesheetDAO.insert(jiraTimesheet);
-						}
-						jiraIssueDAO.insert(jiraIssue);
-					}
-					projectDAO.insert(jiraProject);
-				}*/
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
 			}else{
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));

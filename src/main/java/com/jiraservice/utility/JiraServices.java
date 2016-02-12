@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.configuration.Configuration;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
@@ -42,17 +43,18 @@ public class JiraServices {
 	private JiraUtil jiraUtil;
 	private List<JiraResource> recursos;
 	private Iterable<BasicProject> allBasicProjects;
+	private Configuration bundle;
     
 	public JiraServices() {
 		
 		this.jiraUtil = new JiraUtil();
-		this.restClient = jiraUtil.createClient();
 		try {
+			this.restClient = jiraUtil.createClient(this.bundle);
 			this.recursos = getAllResources();
 			new DAO().insertResources(this.recursos);
 			this.allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 	

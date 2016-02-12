@@ -26,7 +26,8 @@
 									<legend>Worklogs da a Atividade</legend>
 								    <h:panelGrid columns="2">	
 								     	<h:outputLabel value="Key da Atividade:"/>
-								     	<h:inputText id="issueKey" value="#{reportBean.issueKey}"/>
+								     	<h:inputText id="issueKey" value="#{reportBean.issueKey}" title="Digite a Chave da Atividade."/>
+								     	<p:tooltip id="toolTipFocus" for="issueKey" showEvent="focus" hideEvent="blur" />
 										<p:spacer width="10" height="10" />
 										<br/>
 										<p:commandButton value="Pesquisar" actionListener="#{reportBean.searchIssues}" update="issueResults" icon="ui-icon-search"/>
@@ -36,67 +37,6 @@
 								<br/>
 								<hr/>
 								<p:panel header="Atividade" id="issueResults" style="border:0px;">
-									<!-- <p:dataTable value="#{reportBean.atividades}" var="iss"
-											rendered="#{not empty reportBean.atividades}"
-											rowKey="#{iss.key}" resizableColumns="true" reflow="true" rows="3" paginator="true" emptyMessage="Nenhum projeto encontrado">
-										<p:column style="width:16px">
-								            <p:rowToggler />
-								        </p:column>
-										<p:column headerText="Atividade" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.summary}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
-										</p:column>
-										<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.key}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
-										</p:column>
-										<p:column headerText="Status" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.status}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
-										</p:column>
-										<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.assigned}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
-										</p:column>
-										<p:column headerText="Tempo Estimado" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.originalEstimate}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
-										</p:column>
-										<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.timeSpent}h" 
-											escape="false" style="white-space: pre-line; font-size: small;">
-											</h:outputText>
-										</p:column>
-										<p:column headerText="Tempo Restante" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.remainingEstimate}" 
-											escape="false" style="white-space: pre-line; font-size: small;">
-											</h:outputText>
-										</p:column>
-										<p:column headerText="Work Ratio" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.workRatio}" escape="false" style="white-space: pre-line; font-size: small;">
-											</h:outputText>
-										</p:column>
-										<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{iss.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
-										</p:column>
-										
-										<p:rowExpansion>
-											<p:dataTable value="#{iss.timesheets}" var="worklog" rendered="#{not empty iss.timesheets}">
-												<p:column headerText="Usuário" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-												<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{worklog.timeSpent}h" escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-												<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-												<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
-													<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>
-												</p:column>
-											</p:dataTable>
-										</p:rowExpansion>
-									</p:dataTable> -->
 									<p:dataTable value="#{reportBean.projetos}" var="singleProject"
 											rendered="#{not empty reportBean.projetos}"
 											rowKey="#{singleProject.key}" resizableColumns="true" reflow="true" rows="5" paginator="true" emptyMessage="Nenhum Atividade foi encontrado">

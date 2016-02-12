@@ -1,12 +1,18 @@
 package com.jiraservice.utility;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 /**
@@ -19,22 +25,20 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
  */
 public class JiraUtil {
 	
-	private String JIRA_HOST = "https://emcconsulting.atlassian.net";
-    private String JIRA_USERNAME = "jhonatan.rocha";
-    private String JIRA_PASSWORD = "d24m02j";
-	
     /**
      * This method create the connection
      * of the Web Service Client from JIRA.
      * 
      * @return JiraRestClient
+     * @throws ConfigurationException 
      */
-	public JiraRestClient createClient() {
+	public JiraRestClient createClient(Configuration config) throws ConfigurationException {
     	
 		final AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+		config = new PropertiesConfiguration("config.properties");
 		JiraRestClient restClient = null;
 		try {
-			restClient = factory.createWithBasicHttpAuthentication(new URI(JIRA_HOST), JIRA_USERNAME, JIRA_PASSWORD);
+			restClient = factory.createWithBasicHttpAuthentication(new URI(config.getString("server")), config.getString("usuario"), config.getString("senha"));
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -177,6 +181,30 @@ public class JiraUtil {
 		boolean cond2 = finalDate == null || finalGC.after(toCompareGC);
 
 		return cond1 && cond2;
+	}
+	
+	public boolean isValidUser(String login, String password) throws IOException{
+		
+		AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+		Configuration config = null;
+		JiraRestClient restClient = null;
+		try {
+			config = new PropertiesConfiguration("config.properties");
+			restClient = factory.createWithBasicHttpAuthentication(new URI(config.getString("server")), "jhonatan.rocha", "d24m02j");
+			User user = restClient.getUserClient().getUser("jhonatan.rocha").get();
+			restClient.close();
+		} catch (Exception e1) {
+			restClient.close();
+			if(e1.getCause().toString().contains("401")){
+				System.out.println("caiu");
+				return false;
+			} else {
+				e1.printStackTrace();
+			}
+			//e1.printStackTrace();
+			//e1.getCause().toString().contains("401");
+		}
+		return true;
 	}
 	
 }
