@@ -32,7 +32,6 @@ public class ReportBean implements Serializable {
 	private Company companies;
 	private String selectedCompany;
 	private List<JiraProject> projetos;
-	private List<JiraIssue> atividades;
 	private Date issueInitialDate;
 	private Date issueFinalDate;
 
@@ -87,14 +86,6 @@ public class ReportBean implements Serializable {
 
 	public void setIssueKey(String issueKey) {
 		this.issueKey = issueKey;
-	}
-
-	public List<JiraIssue> getAtividades() {
-		return atividades;
-	}
-
-	public void setAtividades(List<JiraIssue> atividades) {
-		this.atividades = atividades;
 	}
 
 	public Date getIssueInitialDate() {

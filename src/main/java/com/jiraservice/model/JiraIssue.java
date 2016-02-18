@@ -62,6 +62,9 @@ public class JiraIssue {
 	private Integer timeSpent; /*Total de horas lançadas*/
 	
 	@Column
+	private String formatedTimeSpent;
+	
+	@Column
 	private Integer remainingEstimate; /*Tempo faltante*/
 	
 	@Column
@@ -98,6 +101,7 @@ public class JiraIssue {
 		this.assigned = assigned;
 		this.originalEstimate = tempoEstimado;
 		this.timeSpent = executedHourTotal;
+		this.formatedTimeSpent = getFormatTimeSpent(timeSpent);
 		this.remainingEstimate = remaningTime;
 		this.status = status;
 		this.workRatio = workratio;
@@ -258,5 +262,20 @@ public class JiraIssue {
 
 	public void setTimesheets(List<JiraTimesheet> timesheets) {
 		this.timesheets = timesheets;
+	}
+	
+	public String getFormatedTimeSpent() {
+		return formatedTimeSpent;
+	}
+
+	public void setFormatedTimeSpent(String formatedTimeSpent) {
+		this.formatedTimeSpent = formatedTimeSpent;
+	}
+	
+	public String getFormatTimeSpent(Integer timeSpentMinutes) {
+		Integer hours = timeSpentMinutes / 60;
+		timeSpentMinutes -= hours * 60;
+		String timeSpentString = String.valueOf(hours) + "h " + String.valueOf(timeSpentMinutes) + "m";
+		return timeSpentString;
 	}
 }
