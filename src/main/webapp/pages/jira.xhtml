@@ -28,7 +28,6 @@
 								     	<h:outputLabel value="Key da Atividade:"/>
 								     	<h:inputText id="issueKey" value="#{reportBean.issueKey}" title="Digite a Chave da Atividade."/>
 								     	<p:tooltip id="toolTipFocus" for="issueKey" showEvent="focus" hideEvent="blur" />
-										<p:spacer width="10" height="10" />
 										<br/>
 										<p:commandButton value="Pesquisar" actionListener="#{reportBean.searchIssues}" update="issueResults" icon="ui-icon-search"/>
 									</h:panelGrid>
@@ -53,7 +52,9 @@
 										</p:column>
 										<p:column headerText="Data de Criação" style="white-space: pre-line; font-size: small;">
 											<h:outputText value="#{singleProject.dataCreate}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
+													escape="false" style="white-space: pre-line; font-size: small;">
+												<f:convertDateTime pattern="dd/MM/yyyy"/>
+											</h:outputText>
 										</p:column>
 										
 										<p:rowExpansion>
@@ -86,7 +87,9 @@
 												</p:column>
 												<p:column headerText="Data Criação" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.created}" 
-														escape="false" style="white-space: pre-line; font-size: small;"/>
+															escape="false" style="white-space: pre-line; font-size: small;">
+														<f:convertDateTime pattern="dd/MM/yyyy"/>
+													</h:outputText>
 												</p:column>
 												<p:column headerText="Resolução" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.resolution}" 
@@ -123,10 +126,12 @@
 															<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
 														<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
-															<h:outputText value="#{worklog.timeSpent}h" escape="false" style="white-space: pre-line; font-size: small;"/>
+															<h:outputText value="#{worklog.formatedTimeSpent}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
 														<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
-															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;"/>
+															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;">
+																<f:convertDateTime pattern="dd/MM/yyyy"/>
+															</h:outputText>
 														</p:column>
 														<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
 															<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>
@@ -149,8 +154,8 @@
 								     	<h:outputLabel value="Key do Projeto:"/>
 								     	<h:inputText id="projectKey" value="#{reportBean.projectKey}"/>
 								     	<h:outputLabel value="Cliente:"/>
-								     	<p:selectOneMenu value="#{reportBean.selectedCompany}">  
-								    		<f:selectItems value="#{reportBean.companies}" var="em" itemLabel="#{em.valor}" />  
+								     	<p:selectOneMenu value="#{reportBean.selectedCompany}" editable="true">  
+								    		<f:selectItems value="#{reportBean.defaultCompanies}" var="em" itemLabel="#{em.valor}" />  
 										</p:selectOneMenu>
 										<p:commandButton value="Pesquisar" actionListener="#{reportBean.searchProjects}" update="projectResults" icon="ui-icon-search"/>
 									</h:panelGrid>
@@ -175,8 +180,10 @@
 											escape="false" style="white-space: pre-line; font-size: small;"/>
 										</p:column>
 										<p:column headerText="Data de Criação" style="white-space: pre-line; font-size: small;">
-											<h:outputText value="#{pro.dataCreate}" 
-											escape="false" style="white-space: pre-line; font-size: small;"/>
+												<h:outputText value="#{pro.dataCreate}" 
+														escape="false" style="white-space: pre-line; font-size: small;">
+													<f:convertDateTime pattern="dd/MM/yyyy"/>
+												</h:outputText>
 										</p:column>
 										
 										<p:rowExpansion>
@@ -209,7 +216,9 @@
 												</p:column>
 												<p:column headerText="Data Criação" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.created}" 
-														escape="false" style="white-space: pre-line; font-size: small;"/>
+																escape="false" style="white-space: pre-line; font-size: small;">
+														<f:convertDateTime pattern="dd/MM/yyyy"/>
+													</h:outputText>
 												</p:column>
 												<p:column headerText="Resolução" style="white-space: pre-line; font-size: small;">
 													<h:outputText value="#{issue.resolution}" 
@@ -246,10 +255,12 @@
 															<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
 														<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
-															<h:outputText value="#{worklog.timeSpent}h" escape="false" style="white-space: pre-line; font-size: small;"/>
+															<h:outputText value="#{worklog.formatedTimeSpent}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
 														<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
-															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;"/>
+															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;">
+																<f:convertDateTime pattern="dd/MM/yyyy"/>
+															</h:outputText>
 														</p:column>
 														<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
 															<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>

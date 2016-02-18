@@ -1,19 +1,33 @@
 package com.jiraservice.utility;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.User;
+import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import com.jiraservice.model.JiraIssue;
+import com.jiraservice.model.JiraTimesheet;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 /**
  * <P>
@@ -23,9 +37,11 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
  * 
  * @author <a href="mailto:jcristianrocha@gmail.com">Jhonatan Rocha</a>
  */
-public class JiraUtil {
+public class JiraUtil implements Serializable {
 	
-    /**
+	private static final long serialVersionUID = -3813483976157592850L;
+
+	/**
      * This method create the connection
      * of the Web Service Client from JIRA.
      * 
@@ -35,176 +51,145 @@ public class JiraUtil {
 	public JiraRestClient createClient(Configuration config) throws ConfigurationException {
     	
 		final AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-		config = new PropertiesConfiguration("config.properties");
 		JiraRestClient restClient = null;
 		try {
-			restClient = factory.createWithBasicHttpAuthentication(new URI(config.getString("server")), config.getString("usuario"), config.getString("senha"));
+			restClient = factory.createWithBasicHttpAuthentication(new URI(config.getString("server")), 
+																			config.getString("usuario"), 
+																			config.getString("senha"));
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 		return restClient;
 	}
 	
-	/**
-	 * This method converts Minutes to Hours.
-	 * 
-	 * @param String minutes
-	 * @return
-	 */
-	public String convertMinuteHour(Integer minutes){
-		
-		StringBuilder time = new StringBuilder();
-		String hours;
-		if(minutes != null){
-			Integer valueHours = minutes / 60;
-			Integer valueMinutes = minutes % 60;
-			hours = time.append(String.valueOf(valueHours)).append(":").append(valueMinutes < 10 && valueMinutes > 0 ? "0".concat(String.valueOf(valueMinutes)) : valueMinutes).toString();
-		}else{
-			hours = "0:0";
-		}
-		return hours;
+	public boolean isBetweenDate(DateTime dateToCompare, DateTime initialDate, DateTime finalDate){
+	    DateTime parsedDate = DateTime.parse(DateTimeFormat.forPattern("yyyy-MM-dd").print(dateToCompare));
+		return parsedDate.isAfter(initialDate) && parsedDate.isBefore(finalDate) 
+				|| parsedDate.equals(initialDate) || parsedDate.equals(finalDate);
 	}
 	
-	/**
-	 * This method converts minutes to hours.
-	 * 
-	 * @param Integer minutes
-	 * @return Double doubleHours
-	 */
-	public Double convertMinuteHourDouble(Integer minutes){
-		
-		StringBuilder time = new StringBuilder();
-		Integer hoursValue = minutes / 60;
-		Integer minutesValue = minutes % 60;
-		String stringHours = minutes != null ? time.append(String.valueOf(hoursValue)).append(".").append(minutesValue < 10 && minutesValue > 0 ? "0".concat(String.valueOf(minutesValue)) : minutesValue).toString() : "0";
-		Double doubleHours =  new Double(stringHours); 		
-		return doubleHours;
-	}	
-	
-	/**
-	 * This method formats the String date.
-	 * 
-	 * @param String date
-	 * @return String formatedDate
-	 */
-	public String dateFormate(String date){
-			StringBuilder dataFormatada = new StringBuilder();
-			return dataFormatada.append(date.subSequence(8,10)).append("/").append(date.subSequence(5,7)).append("/").append(date.subSequence(0,4)).append(" �s ").append(date.subSequence(11,16)).toString();
+	public Project getProjectFromKey(String projectKey) throws InterruptedException, ExecutionException, ConfigurationException, IOException {
+		JiraRestClient jiraRestClient = createClient(new PropertiesConfiguration("config.properties"));
+		Project project = jiraRestClient.getProjectClient().getProject(projectKey).get();
+		jiraRestClient.close();
+		return project;
 	}
 	
-	/**
-	 * This method get the
-	 * current date with no slash.
-	 * 
-	 * @return String 
-	 */
-	 public String getCurrentDateWithNoSlash() {
-		    GregorianCalendar gc = new GregorianCalendar();
-		    gc.setTime(new java.util.Date());
-
-		    String stringDate = "";
-		    int year = gc.get(Calendar.YEAR);
-		    int month = gc.get(Calendar.MONTH) + 1;
-		    int day = gc.get(Calendar.DAY_OF_MONTH);
-
-		    stringDate += year;
-		    if (month < 10) {
-		      stringDate += "0";
-		    }
-		    stringDate += month;
-		    if (day < 10) {
-		      stringDate += "0";
-		    }
-		    stringDate += day;
-
-		    return stringDate;
-	 }
-	 
-	 /**
-	  * This method get the Current
-	  * Hour by the separator.
-	  * 
-	  * @return String hour
-	  */
-	 public String getCurrentHourBySeparator() {
-		    GregorianCalendar gc = new GregorianCalendar();
-		    gc.setTime(new java.util.Date());
-
-		    String hourString = "";
-		    int hour = gc.get(Calendar.HOUR_OF_DAY);
-		    int minute = gc.get(Calendar.MINUTE);
-		    int second = gc.get(Calendar.SECOND);
-
-		    if (hour < 10) {
-		      hourString += "0";
-		    }
-		    hourString += hour;
-		    if (minute < 10) {
-		      hourString += "0";
-		    }
-		    hourString += minute;
-		    if (second < 10) {
-		      hourString += "0";
-		    }
-		    hourString += second;
-
-		    return hourString;
-	 }
-	 
-	 /**
-	  * This method check if the
-	  * Date is between two other dates.
-	  * 
-	  * @param Date initialDate
-	  * @param Date finalDate
-	  * @param Date dateToCompare
-	  * @return boolean (true/false)
-	  */
-	public static boolean isDateBetween(Date initialDate,Date finalDate, Date dateToCompare) {
-
-		GregorianCalendar initialGC = new GregorianCalendar();
-		if (initialDate != null) {
-			initialGC.setTime(initialDate);
-			initialGC.set(GregorianCalendar.HOUR_OF_DAY, 0);
-		}
-
-		GregorianCalendar finalGC = new GregorianCalendar();
-		if (finalDate != null) {
-			finalGC.setTime(finalDate);
-			finalGC.set(GregorianCalendar.HOUR_OF_DAY, 24);
-		}
-
-		GregorianCalendar toCompareGC = new GregorianCalendar();
-		toCompareGC.setTime(dateToCompare);
-
-		boolean cond1 = initialDate == null || toCompareGC.after(initialGC);
-		boolean cond2 = finalDate == null || finalGC.after(toCompareGC);
-
-		return cond1 && cond2;
-	}
-	
-	public boolean isValidUser(String login, String password) throws IOException{
+	public JiraIssue getJiraIssueFromDateInterval(Issue issue, List<JiraTimesheet> worklogList, DateTime initialDate, DateTime finalDate) throws JSONException {
 		
-		AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-		Configuration config = null;
-		JiraRestClient restClient = null;
-		try {
-			config = new PropertiesConfiguration("config.properties");
-			restClient = factory.createWithBasicHttpAuthentication(new URI(config.getString("server")), "jhonatan.rocha", "d24m02j");
-			User user = restClient.getUserClient().getUser("jhonatan.rocha").get();
-			restClient.close();
-		} catch (Exception e1) {
-			restClient.close();
-			if(e1.getCause().toString().contains("401")){
-				System.out.println("caiu");
-				return false;
-			} else {
-				e1.printStackTrace();
+		Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
+		if(issue.getAssignee() != null) {
+
+			String assignedUser = issue.getAssignee().getName();
+			String issueType = "";
+			String resolution = "";
+			
+			if(issue.getIssueType() != null){
+				issueType = issue.getIssueType().getName();
 			}
-			//e1.printStackTrace();
-			//e1.getCause().toString().contains("401");
+			
+			if(issue.getResolution() != null){
+				resolution = issue.getResolution().getName();
+			}
+				
+			int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
+			
+			Object workrate = issue.getField("workratio").getValue();
+			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
+			
+			String creator = jsonIssueCreator.get("name").toString();
+
+			JiraIssue jiraIssue = null;
+
+			if(initialDate != null && finalDate != null && isBetweenDate(issue.getUpdateDate(), initialDate, finalDate)) {
+				
+				jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
+										  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
+										  issue.getTimeTracking().getTimeSpentMinutes(), remainingTime, issue.getStatus().getName(), 
+										  Long.valueOf(workrate.toString()).longValue(), creator, resolution,
+										  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
+			
+				if(issue.getDueDate() != null){					
+					jiraIssue.setDueDate(issue.getDueDate().toDate());
+				}
+				return jiraIssue;
+			}else if(initialDate == null && finalDate == null){
+				
+				jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
+						  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
+						  issue.getTimeTracking().getTimeSpentMinutes(), remainingTime, issue.getStatus().getName(), 
+						  Long.valueOf(workrate.toString()).longValue(), creator, resolution,
+						  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
+
+				if(issue.getDueDate() != null){					
+					jiraIssue.setDueDate(issue.getDueDate().toDate());
+				}
+				return jiraIssue;
+			}
 		}
-		return true;
+		return null;
+	}
+	
+	public ClientResponse requestWorklogREST(Issue issue, Configuration config) throws ConfigurationException {
+		String apiRestUrl = config.getString("server") + "/rest/api/latest/issue/"+ issue.getKey() + "/worklog";
+		String authUserPass = config.getString("usuario") + ":" + config.getString("senha");
+        String authEncryption = new Base64().encodeToString(authUserPass.getBytes());
+ 
+        Client restClient = Client.create();
+        WebResource webResource = restClient.resource(apiRestUrl);
+        ClientResponse resp = webResource
+						        		.accept("application/json")
+						        		.header("Authorization", "Basic " + authEncryption)
+						        		.get(ClientResponse.class);
+        restClient.destroy();
+        return resp;
+	}
+	
+	public List<JiraTimesheet> retrieveJiraTimesheetsFromJSON(String outputJson, Issue issue, DateTime initialDate, DateTime finalDate) 
+			throws JSONException {
+		
+		List<JiraTimesheet> jiraTimesheets = new ArrayList<>();
+    	JSONObject obj = new JSONObject(outputJson);
+    	
+    	if(obj.has("worklogs")) {
+        	JSONArray jsonObjArray = obj.getJSONArray("worklogs");
+        	
+        	for(int i = 0 ; i < jsonObjArray.length() ; i++) {
+        		JSONObject jsonObject = jsonObjArray.getJSONObject(i);
+        		DateTime worklogStartedDate = DateTime.parse(jsonObject.getString("started"));
+        		
+        		if (initialDate != null && finalDate != null && isBetweenDate(worklogStartedDate, initialDate, finalDate)) {
+        		
+	        		String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
+	        		String comment = jsonObject.getString("comment");
+	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
+	        		String author = jsonObjectUpdateAuthor.getString("displayName");
+	        		Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
+	        	    
+	        	    jiraTimesheets.add(new JiraTimesheet(issue.getKey(), 
+	        	    									 issue.getSummary(), 
+	        	    									 worklogStartedDate.toDate(), 
+	        	    									 author, 
+	        	    									 timeSpentMinutes, 
+	        	    									 comment));
+        		} else if(initialDate == null && finalDate == null) {
+        			
+        			String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
+	        		String comment = jsonObject.getString("comment");
+	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
+	        		String author = jsonObjectUpdateAuthor.getString("displayName");
+	        		Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
+	        	    
+	        	    jiraTimesheets.add(new JiraTimesheet(issue.getKey(), 
+	        	    									 issue.getSummary(), 
+	        	    									 worklogStartedDate.toDate(), 
+	        	    									 author, 
+	        	    									 timeSpentMinutes, 
+	        	    									 comment));
+        		}
+        	}
+    	}	
+    	return jiraTimesheets;
 	}
 	
 }

@@ -85,35 +85,11 @@ public class JiraIssue {
 	public JiraIssue() {
 
 	}
-	
-	/*public JiraIssue(String keyMap, String summary, String issueType,
-			Date created, String resolution, Date resolved, Date updated,
-			String assigned, String status, Integer originalEstimate,
-			Integer timeSpent, Integer remainingEstimate, long workRatio,
-			String sprint, String creator, String progress, Date dueDate) {
-		this.keyMap = keyMap;
-		this.summary = summary;
-		this.issueType = issueType;
-		this.created = created;
-		this.resolution = resolution;
-		this.resolved = resolved;
-		this.updated = updated;
-		this.assigned = assigned;
-		this.status = status;
-		this.originalEstimate = originalEstimate;
-		this.timeSpent = timeSpent;
-		this.remainingEstimate = remainingEstimate;
-		this.workRatio = workRatio;
-		this.sprint = sprint;
-		this.creator = creator;
-		this.progress = progress;
-		this.dueDate = dueDate;
-	}*/
 
 	public JiraIssue(String key, String summary, String issueType,
 			Date creationDate, String assigned, Integer tempoEstimado,
 			Integer executedHourTotal,Integer remaningTime, String status, 
-			long workratio, String creator, String resolution, long id, List<JiraTimesheet> worklogs) {
+			long workratio, String creator, String resolution, long id, Date updated, List<JiraTimesheet> worklogs) {
 		
 		this.key = key;
 		this.summary = summary;
@@ -128,26 +104,8 @@ public class JiraIssue {
 		this.creator = creator;
 		this.resolution = resolution;
 		this.id = id;
+		this.updated = updated;
 		this.timesheets = worklogs;
-	}
-	
-	public JiraIssue(String key, String summary, String issueType,
-			Date created, String assigned, Integer tempoEstimado,
-			Integer executedHourTotal,Integer remaningTime, String status, 
-			long workratio, String creator, String resolution) {
-		
-		this.key = key;
-		this.summary = summary;
-		this.issueType = issueType;
-		this.created = created;
-		this.assigned = assigned;
-		this.originalEstimate = tempoEstimado;
-		this.timeSpent = executedHourTotal;
-		this.remainingEstimate = remaningTime;
-		this.status = status;
-		this.workRatio = workratio;
-		this.creator = creator;
-		this.resolution = resolution;
 	}
 
 	public long getId() {

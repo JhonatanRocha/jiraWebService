@@ -12,23 +12,10 @@ import com.jiraservice.model.JiraTimesheet;
 
 public class DAO {
 	
-	public void insertResources(List<JiraResource> resources){
-		
-		JPAUtil jpaUtil = new JPAUtil();
-		EntityManager em = jpaUtil.getEntityManager();
-
-		// abre transacao
-		em.getTransaction().begin();
-		
-		for(JiraResource resource : resources){
-			em.persist(resource);
-		}
-		
-		// commita a transacao
-		em.getTransaction().commit();
-
-				// fecha a entity manager
-		jpaUtil.close(em);
+	List<JiraResource> resources;
+	
+	public DAO(List<JiraResource> resources) {
+		this.resources =  resources;
 	}
 	
 	public void insert(List<JiraProject> projects) {
@@ -44,6 +31,9 @@ public class DAO {
 		for(JiraProject project : projects) {
 			for (JiraIssue jiraIssue : project.getAtividades()) {
 				for(JiraTimesheet jiraTimesheet : jiraIssue.getTimesheets()) {
+					for(JiraResource resource : this.resources){
+						em.persist(resource);
+					}
 					em.persist(jiraTimesheet);
 				}
 				em.persist(jiraIssue);

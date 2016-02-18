@@ -1,7 +1,7 @@
 package com.jiraservice.utility;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.configuration.Configuration;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.joda.time.DateTime;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
@@ -21,12 +21,11 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.User;
-import com.atlassian.jira.rest.client.api.domain.Worklog;
-import com.jiraservice.dao.DAO;
 import com.jiraservice.model.JiraIssue;
 import com.jiraservice.model.JiraProject;
 import com.jiraservice.model.JiraResource;
 import com.jiraservice.model.JiraTimesheet;
+import com.sun.jersey.api.client.ClientResponse;
 
 
 /**
@@ -37,198 +36,62 @@ import com.jiraservice.model.JiraTimesheet;
  * 
  * @author <a href="mailto:jcristianrocha@gmail.com">Jhonatan Rocha</a>
  */
-public class JiraServices {
+public class JiraServices implements Serializable {
 	
+	private static final long serialVersionUID = 3072228013239966011L;
 	private JiraRestClient restClient;
 	private JiraUtil jiraUtil;
-	private List<JiraResource> recursos;
 	private Iterable<BasicProject> allBasicProjects;
 	private Configuration bundle;
     
 	public JiraServices() {
 		
-		this.jiraUtil = new JiraUtil();
 		try {
+			this.bundle = new PropertiesConfiguration("config.properties");
+			this.jiraUtil = new JiraUtil();
 			this.restClient = jiraUtil.createClient(this.bundle);
-			this.recursos = getAllResources();
-			new DAO().insertResources(this.recursos);
 			this.allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-    /**
-     * This method close
-     * the Web Service Client
-     * Connection.
-     * 
-     * @throws IOException
-     */
 	public void closeClient() throws IOException {
 		restClient.close();
 	}
 	
-	/**
-	 * 
-	 * @param projectKey
-	 * @return
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	public Project getSingleProjectFromKey(String projectKey) throws InterruptedException, ExecutionException{
-		Project project = this.restClient.getProjectClient().getProject(projectKey).get();
-		return project;
-	}
-	
-	/**
-	 * This method returns
-     * all the Projects from
-     * specific client, using 
-     * date interval.
-     * (the client is a 
-     * prefix name of the
-     * project name)
-	 * 
-	 * @param cliente
-	 * @param initialDate
-	 * @param finalDate
-	 * @return List of JiraProject
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	public List<JiraProject> getProjectsBetweenDates(String cliente, DateTime initialDate, DateTime finalDate) throws InterruptedException, ExecutionException {
+	public List<JiraProject> getProjectsBetweenDates(String cliente, DateTime initialDate, DateTime finalDate) throws Exception {
+		
 		List<JiraProject> projects = new ArrayList<JiraProject>();
-		for (JiraProject project : getallProjects(cliente)) {	
-			populateJiraProjects(initialDate, finalDate, projects, project);	
+		
+		for (JiraProject project : getallProjects(cliente)) {
+			String jql = "project = " + project.getKey();
+			SearchRestClient client = this.restClient.getSearchClient();
+			SearchResult results = client.searchJql(jql, 5000, 0, null).claim();
+			List<Issue> issues = (List<Issue>) results.getIssues();
+			Collections.sort(issues, new ComparatorIssue());
+
+			boolean updateFlag = false;
+			for (Issue issue : issues) {
+				if(this.jiraUtil.isBetweenDate(issue.getUpdateDate(), initialDate, finalDate)) {
+					updateFlag = true;
+					break;
+				}
+			}
+			
+			if (updateFlag) {
+				List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, initialDate, finalDate);
+				if (jiraIssues.size() > 0) {
+					project.setAtividades(jiraIssues);
+					project.setDataCreate(issues.get(0).getCreationDate().toDate());
+					projects.add(project);
+				}
+			}	
 		}
 		return projects;
 	}
 
-	private void populateJiraProjects(DateTime initialDate, DateTime finalDate,
-			List<JiraProject> projects, JiraProject project) {
-		String jql = "project = " + project.getKey();
-		SearchRestClient client = this.restClient.getSearchClient();
-		SearchResult results = client.searchJql(jql, 2000, 0, null).claim();
-		List<Issue> issues = (List<Issue>) results.getIssues();
-		Collections.sort(issues, new ComparatorIssue());
-		if (validateProjectDate(issues.get(0).getCreationDate(), initialDate, finalDate)) {
-			List<JiraIssue> jiraIssues = getAtividades(results);
-			project.setAtividades(jiraIssues);
-			project.setDataCreate(issues.get(0).getCreationDate().toDate());
-			projects.add(project);
-		}
-	}
-	
-    /**
-     * This method get all
-     * the Issues from Jira.
-     * 
-     * @param SearchResult results
-     * @param String client
-     * @param List<JiraResource> resources
-     * @return List of JiraIssue
-     */
-    public List<JiraIssue> getAtividades(SearchResult results) {
-    	
-    	List<JiraIssue> jiraIssues = new ArrayList<JiraIssue>();
-		for (final BasicIssue result : results.getIssues()) {
-			
-			Issue issue = this.restClient.getIssueClient().getIssue(result.getKey()).claim();
-			List<Worklog> worklogs = (List<Worklog>) issue.getWorklogs();
-			Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
-
-			String assignedUser = "";
-			String issueType = "";
-			String resolution = "";
-			String creator = "";
-			
-			if(issue.getAssignee() != null){
-
-				assignedUser = issue.getAssignee().getName();
-				
-				if(issue.getIssueType() != null){
-					issueType = issue.getIssueType().getName();
-				}
-				
-				if(issue.getResolution() != null){
-					resolution = issue.getResolution().getName();
-				}
-					
-				int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
-				//IssueField sprintField = issue.getFieldByName("Sprint");
-				
-				Object workrate = issue.getField("workratio").getValue();
-				JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
-				try {
-					creator = jsonIssueCreator.get("name").toString();
-				} catch (JSONException e) {
-					throw new RuntimeException(e);
-				}
-				/*int i = 0;
-				for (IssueField issueField : fields) {
-					Object value = issueField.getValue();
-					System.out.println("campo: " + i);
-					i++;
-				}*/
-				
-				List<JiraTimesheet> worklogList = new ArrayList<JiraTimesheet>();
-				
-				for (Worklog worklog : worklogs) {
-					
-					worklogList.add(new JiraTimesheet(issue.getKey(), 
-							issue.getSummary(), 
-							worklog.getUpdateDate().toDate(), 
-							worklog.getUpdateAuthor().getDisplayName(),
-							(worklog.getMinutesSpent() / 60),
-							worklog.getComment()));
-				}
-				
-				JiraIssue jiraIssue = null;
-				jiraIssue = new JiraIssue(
-						issue.getKey(),
-						issue.getSummary(),
-						issueType,
-						issue.getCreationDate().toDate(),
-						assignedUser,
-						tempoEstimado,
-						getExecutedHourTotal(worklogs),
-						remainingTime,
-						issue.getStatus().getName(), 
-						Long.valueOf(workrate.toString()).longValue(),
-						creator,
-						resolution,
-						issue.getProject().getId(),
-						worklogList);
-				
-				if(issue.getDueDate() != null){					
-					jiraIssue.setDueDate(issue.getDueDate().toDate());
-				}
-				
-				if(issue.getUpdateDate() != null){
-					jiraIssue.setUpdated(issue.getUpdateDate().toDate());
-				}
-				
-				jiraIssues.add(jiraIssue);
-			}
-		}
-		return jiraIssues;
-	}
-
-    /**
-     * This method returns
-     * all the Projects from
-     * specific client
-     * (the client is a 
-     * prefix name of the
-     * project name)
-     * 
-     * @param String client
-     * @return List of JiraProject
-     * @throws InterruptedException
-     * @throws ExecutionException
-     */
-	public List<JiraProject> getAllProjetosByCliente(String client) throws InterruptedException, ExecutionException {
+	public List<JiraProject> getAllProjetosByCliente(String client) throws Exception {
 		List<JiraProject> projects = new ArrayList<JiraProject>();
 		for (JiraProject project : getallProjects(client)) {
 			
@@ -238,24 +101,16 @@ public class JiraServices {
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
 			
-			List<JiraIssue> jiraIssues = getAtividades(results);
-			project.setAtividades(jiraIssues);
-			projects.add(project);
+			List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, null, null);//getAtividades(results);
+			if(jiraIssues.size() > 0) {				
+				project.setAtividades(jiraIssues);
+				projects.add(project);
+			}
 						
 		}
 		return projects;
 	}
 
-	/**
-	 * This method returns all the User
-	 * from Jira(in this specific case
-	 * we insert all the user on this
-	 * Project)
-	 * 
-	 * @return List of JiraResource
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
 	public List<JiraResource> getAllResources() throws InterruptedException, ExecutionException {
 		List<JiraResource> resources = new ArrayList<JiraResource>();
 		List<User> usersFromJIRA = getAllUsers("GFBD");
@@ -266,25 +121,12 @@ public class JiraServices {
     	return resources;
 	}
 
-	/**
-	 * This method gets all
-	 * projects from JIRA
-	 * using the filter
-	 * (All projects name has a
-	 * prefix in their name,
-	 * this prefix refers a client)
-	 * 
-	 * @param String client
-	 * @return List of JiraProject;
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-    public List<JiraProject> getallProjects(String filter) throws InterruptedException, ExecutionException{
+    public List<JiraProject> getallProjects(String filter) throws InterruptedException, ExecutionException, ConfigurationException, IOException{
     	List<JiraProject> projects = new ArrayList<JiraProject>();
     	for (BasicProject basicProject : this.allBasicProjects) {
 			if(basicProject.getName().length() >= 5) {
-				if(basicProject.getName().substring(2, 5).equals(filter)) {
-					Project project = getSingleProjectFromKey(basicProject.getKey());
+				if(basicProject.getName().substring(2, 5).startsWith(filter)) {
+					Project project = this.jiraUtil.getProjectFromKey(basicProject.getKey());
 					JiraProject jiraproject = new JiraProject();
 					jiraproject.setKey(project.getKey());
 					jiraproject.setProject(project.getName());
@@ -296,14 +138,7 @@ public class JiraServices {
     	return projects;
     }
     
-   /**
-    * This method returns all Issues
-    * from a single Project.
-    *  
-    * @param projectKey
-    * @return List of Issue from JIRA
-    */
-   public List<Issue> getAllIssuesFromProject(String projectKey){
+   public List<Issue> getAllIssuesFromProject(String projectKey) {
 	   	String jql = "project = "+ projectKey;
 	   	List<Issue> listIssues = new ArrayList<Issue>();
 	   	SearchRestClient client = this.restClient.getSearchClient();
@@ -316,17 +151,6 @@ public class JiraServices {
 	   return listIssues; 
    }
     
-	/**
-	 * This method returns all the User
-	 * from Jira(in this specific case
-	 * we insert all the user on this
-	 * Project)
-	 * 
-	 * @param projectKey
-	 * @return List of Users from JIRA
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
     public List<User> getAllUsers(String projectKey) throws InterruptedException, ExecutionException {
     	List<Issue> issues = getAllIssuesFromProject(projectKey);
     	List<User> projectUsers = new ArrayList<User>();
@@ -338,40 +162,8 @@ public class JiraServices {
 		}
     	return projectUsers;
     }
-    
-    /**
-     * This method return the total
-     * time spent from Issue
-     * 
-     * @param List of Worklog from JIRA
-     * @return total time spent
-     */
-    public Integer getExecutedHourTotal(List<Worklog> worklogs) {
-		Integer total = 0;
-		for (Worklog worklog : worklogs) {
-			total += worklog.getMinutesSpent();
-		}
-		
-		return total / 60;
-	}
-    
-    /**
-     * This method validate the DateTime
-     * from Project.
-     * 
-     * @param DateTime from Project
-     * @param DateTime initialDate
-     * @param DateTime finalDate
-     * @return boolean value (true/false)
-     */
-    public boolean validateProjectDate(DateTime projectDate, DateTime initialDate, DateTime finalDate) {
-		
-		return (projectDate.isAfter(initialDate) && projectDate.isBefore(finalDate))
-				|| projectDate.equals(initialDate)
-				|| projectDate.equals(finalDate);
-	}
 
-	public JiraProject getJiraProject(String projectKey) {
+	public JiraProject getJiraProject(String projectKey) throws Exception {
 
 		Project project = this.restClient.getProjectClient().getProject(projectKey).claim();
 			
@@ -382,7 +174,7 @@ public class JiraServices {
 		DateTime creationDate = issues.get(0).getCreationDate();
 		Collections.sort(issues, new ComparatorIssue());
 		
-		List<JiraIssue> jiraIssues = getAtividades(results);
+		List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, null, null); //getAtividades(results);
 		JiraProject jiraproject = new JiraProject();
 		jiraproject.setKey(project.getKey());
 		jiraproject.setProject(project.getName());
@@ -392,81 +184,16 @@ public class JiraServices {
 		return jiraproject;
 	}
 	
-	public JiraProject getProjectFromIssueKey(String issueKey) {
-		String assignedUser = "";
-		String issueType = "";
-		String resolution = "";
-		String creator = "";
-		JiraIssue jiraIssue = null;
+	public JiraProject getProjectFromIssueKey(String issueKey) throws Exception {
 		JiraProject jiraProject = new JiraProject();
 		Issue issue = this.restClient.getIssueClient().getIssue(issueKey).claim();
 		
-		List<Worklog> worklogs = (List<Worklog>) issue.getWorklogs();
-		Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
-
-		if(issue.getAssignee() != null){
-
-			assignedUser = issue.getAssignee().getName();
-			
-			if(issue.getIssueType() != null){
-				issueType = issue.getIssueType().getName();
-			}
-			
-			if(issue.getResolution() != null){
-				resolution = issue.getResolution().getName();
-			}
-				
-			int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
-			//IssueField sprintField = issue.getFieldByName("Sprint");
-			
-			Object workrate = issue.getField("workratio").getValue();
-			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
-			try {
-				creator = jsonIssueCreator.get("name").toString();
-			} catch (JSONException e) {
-				throw new RuntimeException(e);
-			}
-			/*int i = 0;
-			for (IssueField issueField : fields) {
-				Object value = issueField.getValue();
-				System.out.println("campo: " + i);
-				i++;
-			}*/
-			
-			List<JiraTimesheet> worklogList = new ArrayList<JiraTimesheet>();
-			
-			for (Worklog worklog : worklogs) {
-				
-				worklogList.add(new JiraTimesheet(issue.getKey(), 
-						issue.getSummary(), 
-						worklog.getUpdateDate().toDate(), 
-						worklog.getUpdateAuthor().getDisplayName(),
-						(worklog.getMinutesSpent() / 60),
-						worklog.getComment()));
-			}
-			
-			jiraIssue = new JiraIssue(
-					issue.getKey(),
-					issue.getSummary(),
-					issueType,
-					issue.getCreationDate().toDate(),
-					assignedUser,
-					tempoEstimado,
-					getExecutedHourTotal(worklogs),
-					remainingTime,
-					issue.getStatus().getName(), 
-					Long.valueOf(workrate.toString()).longValue(),
-					creator,
-					resolution,
-					issue.getProject().getId(),
-					worklogList);
-			
-			if(issue.getDueDate() != null){					
-				jiraIssue.setDueDate(issue.getDueDate().toDate());
-			}
-			
-			jiraIssue.setUpdated(issue.getUpdateDate().toDate());
-			
+		
+		List<JiraTimesheet> worklogList = new ArrayList<>();
+		worklogList = getTimesheetsFromIssueKeyUsingDate(issue, null, null);
+		JiraIssue jiraIssue = this.jiraUtil.getJiraIssueFromDateInterval(issue, worklogList, null, null);
+		
+		if(jiraIssue != null) {
 			JiraIssue[] jiraissues = new JiraIssue[] {jiraIssue};
 			jiraProject.setAtividades(Arrays.asList(jiraissues));
 			jiraProject.setProject(issue.getProject().getName());
@@ -474,6 +201,68 @@ public class JiraServices {
 			jiraProject.setKey(issue.getProject().getKey());
 			jiraProject.setDataCreate(issue.getCreationDate().toDate());
 		}
+
 		return jiraProject;
+	}
+
+	public JiraProject getProjectWorklogBetweenDates(String projectKey, DateTime initialDate, DateTime finalDate) throws Exception {
+
+		Project project = this.jiraUtil.getProjectFromKey(projectKey);
+		
+		String jql = "project = " + project.getKey();
+		SearchRestClient searchRestClient = this.restClient.getSearchClient();
+		SearchResult results = searchRestClient.searchJql(jql, 2000, 0, null).claim();
+		List<Issue> issues = (List<Issue>) results.getIssues();
+		DateTime creationDate = issues.get(0).getCreationDate();
+		Collections.sort(issues, new ComparatorIssue());
+		
+		List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, initialDate, finalDate);
+		
+		if (jiraIssues.size() > 0) {
+			
+			JiraProject jiraproject = new JiraProject();
+			
+			jiraproject.setKey(project.getKey());
+			jiraproject.setProject(project.getName());
+			jiraproject.setAtividades(jiraIssues);
+			jiraproject.setDataCreate(creationDate.toDate());		
+			
+			return jiraproject;
+		} else {
+			return null;
+		}
+	}
+	
+	private List<JiraIssue> getAtividadesUsingDateInterval(SearchResult results, DateTime initialDate, DateTime finalDate) throws Exception {
+		
+		List<JiraIssue> jiraIssues = new ArrayList<JiraIssue>();
+		for (final BasicIssue result : results.getIssues()) {
+			
+			Issue issue = this.restClient.getIssueClient().getIssue(result.getKey()).claim();
+			List<JiraTimesheet> worklogList = new ArrayList<>();
+			worklogList = getTimesheetsFromIssueKeyUsingDate(issue, initialDate, finalDate);
+			
+			if(worklogList.size() > 0) {
+				JiraIssue jiraIssue = this.jiraUtil.getJiraIssueFromDateInterval(issue, worklogList, initialDate, finalDate);
+				if(jiraIssue != null){
+					jiraIssues.add(jiraIssue);
+				}
+			}
+		}
+		return jiraIssues;
+	}
+	
+	private List<JiraTimesheet> getTimesheetsFromIssueKeyUsingDate(Issue issue, DateTime initialDate, DateTime finalDate) throws Exception {
+		
+		List<JiraTimesheet> jiraTimesheets = new ArrayList<>();
+        ClientResponse response = this.jiraUtil.requestWorklogREST(issue, this.bundle);
+        
+        if(response.getStatus() == 200){
+        	String outputJson = response.getEntity(String.class);
+        	jiraTimesheets = this.jiraUtil.retrieveJiraTimesheetsFromJSON(outputJson, issue, initialDate, finalDate);
+        	return jiraTimesheets;
+        }else {
+        	return jiraTimesheets;
+        }
 	}
 }

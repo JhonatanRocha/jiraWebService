@@ -2,7 +2,7 @@ package com.jiraservice.utility;
 
 public enum Company {
 	
-	NENHUM(""), TIM("Tim Brasil");
+	NENHUM(""), EMC("EMC"), TIM("TIM"), SAN("SAN");
 	
 	public String valor;
 	

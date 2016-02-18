@@ -41,6 +41,9 @@ public class JiraTimesheet {
 	
 	@Column(length = 500)
 	private String comment; /*Comentários*/
+	
+	@Column
+	private String formatedTimeSpent;
 
 	public JiraTimesheet(String key, String title, Date date, String userName, Integer timeSpent, String comment) {
 		this.key = key;
@@ -49,17 +52,7 @@ public class JiraTimesheet {
 		this.userName = userName;
 		this.timeSpent = timeSpent;
 		this.comment = comment;
-	}
-
-	public JiraTimesheet(long id, String key, String title, Date date,
-			String userName, Integer timeSpent, String comment) {
-		this.id = id;
-		this.key = key;
-		this.title = title;
-		this.date = date;
-		this.userName = userName;
-		this.timeSpent = timeSpent;
-		this.comment = comment;
+		this.formatedTimeSpent = getFormatTimeSpent(timeSpent);
 	}
 
 	public long getIdTimesheet() {
@@ -124,5 +117,20 @@ public class JiraTimesheet {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public String getFormatedTimeSpent() {
+		return formatedTimeSpent;
+	}
+
+	public void setFormatedTimeSpent(String formatedTimeSpent) {
+		this.formatedTimeSpent = formatedTimeSpent;
+	}
+	
+	public String getFormatTimeSpent(Integer timeSpentMinutes) {
+		Integer hours = timeSpentMinutes / 60;
+		timeSpentMinutes -= hours * 60;
+		String timeSpentString = String.valueOf(hours) + "h " + String.valueOf(timeSpentMinutes) + "m";
+		return timeSpentString;
 	}
 }
