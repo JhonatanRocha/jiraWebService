@@ -162,11 +162,12 @@ public class JiraUtil implements Serializable {
         		
 	        		String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
 	        		String comment = jsonObject.getString("comment");
+	        		String id = jsonObject.getString("id");
 	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
 	        		String author = jsonObjectUpdateAuthor.getString("displayName");
 	        		Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
 	        	    
-	        	    jiraTimesheets.add(new JiraTimesheet(issue.getKey(), 
+	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
 	        	    									 issue.getSummary(), 
 	        	    									 worklogStartedDate.toDate(), 
 	        	    									 author, 
@@ -176,11 +177,12 @@ public class JiraUtil implements Serializable {
         			
         			String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
 	        		String comment = jsonObject.getString("comment");
+	        		String id = jsonObject.getString("id");
 	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
 	        		String author = jsonObjectUpdateAuthor.getString("displayName");
 	        		Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
 	        	    
-	        	    jiraTimesheets.add(new JiraTimesheet(issue.getKey(), 
+	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
 	        	    									 issue.getSummary(), 
 	        	    									 worklogStartedDate.toDate(), 
 	        	    									 author, 

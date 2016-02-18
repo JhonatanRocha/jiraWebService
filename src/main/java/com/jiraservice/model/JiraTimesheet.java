@@ -18,14 +18,10 @@ import javax.persistence.Column;
 public class JiraTimesheet {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long idTimesheet;
+	private long id; /*ID do Worklog*/
 	
 	@Column(name="keyid")
 	private String key; /*Chave da Atividade*/
-	
-	@Column
-	private long id; /*ID do Projeto*/
 	
 	@Column
 	private String title; /*Descrição da Atividade*/
@@ -45,7 +41,8 @@ public class JiraTimesheet {
 	@Column
 	private String formatedTimeSpent;
 
-	public JiraTimesheet(String key, String title, Date date, String userName, Integer timeSpent, String comment) {
+	public JiraTimesheet(long id,String key, String title, Date date, String userName, Integer timeSpent, String comment) {
+		this.id = id;
 		this.key = key;
 		this.title = title;
 		this.date = date;
@@ -53,14 +50,6 @@ public class JiraTimesheet {
 		this.timeSpent = timeSpent;
 		this.comment = comment;
 		this.formatedTimeSpent = getFormatTimeSpent(timeSpent);
-	}
-
-	public long getIdTimesheet() {
-		return idTimesheet;
-	}
-
-	public void setIdTimesheet(long idTimesheet) {
-		this.idTimesheet = idTimesheet;
 	}
 
 	public long getId() {
