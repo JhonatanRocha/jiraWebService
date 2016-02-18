@@ -125,7 +125,7 @@ public class JiraServices implements Serializable {
     	List<JiraProject> projects = new ArrayList<JiraProject>();
     	for (BasicProject basicProject : this.allBasicProjects) {
 			if(basicProject.getName().length() >= 5) {
-				if(basicProject.getName().substring(2, 5).startsWith(filter)) {
+				if(basicProject.getName().substring(2).startsWith(filter)) {
 					Project project = this.jiraUtil.getProjectFromKey(basicProject.getKey());
 					JiraProject jiraproject = new JiraProject();
 					jiraproject.setKey(project.getKey());
