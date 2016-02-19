@@ -35,22 +35,41 @@
 								<br/>
 								<br/>
 								<hr/>
-								<p:panel header="Atividade" id="issueResults" style="border:0px;">
+								<p:panel id="issueResults" style="border:0px;">
+									<f:facet name="header">
+										<p:graphicImage value="../imagens/projectPanel.png"/>
+										<h:outputText value=" Atividade Relaciona ao Projeto"/>
+									</f:facet>
 									<p:dataTable value="#{reportBean.projetos}" var="singleProject"
 											rendered="#{not empty reportBean.projetos}"
 											rowKey="#{singleProject.key}" resizableColumns="true" reflow="true" rows="5" paginator="true" emptyMessage="Nenhum Atividade foi encontrado">
 									 	<p:column style="width:16px">
 								            <p:rowToggler />
 								        </p:column>
-										<p:column headerText="Projeto" style="white-space: pre-line; font-size: small;">
+										<p:column style="white-space: pre-line; font-size: small;">
+											<f:facet name="header">
+												<p:graphicImage value="../imagens/project.png"/>
+												<br/>
+												<h:outputText value="Projeto"/>
+											</f:facet>
 											<h:outputText value="#{singleProject.project}" 
 											escape="false" style="white-space: pre-line; font-size: small;"/>
 										</p:column>
-										<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+										<p:column style="white-space: pre-line; font-size: small;">
+											<f:facet name="header">
+												<p:graphicImage value="../imagens/key.png"/>
+												<br/>
+												<h:outputText value="Chave"/>
+											</f:facet>
 											<h:outputText value="#{singleProject.key}" 
 											escape="false" style="white-space: pre-line; font-size: small;"/>
 										</p:column>
-										<p:column headerText="Data de Criação" style="white-space: pre-line; font-size: small;">
+										<p:column style="white-space: pre-line; font-size: small;">
+											<f:facet name="header">
+												<p:graphicImage value="../imagens/projectHammer.png"/>
+												<br/>
+												<h:outputText value="Data de Criação"/>
+											</f:facet>
 											<h:outputText value="#{singleProject.dataCreate}" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 												<f:convertDateTime pattern="dd/MM/yyyy"/>
@@ -60,80 +79,162 @@
 										<p:rowExpansion>
 											<p:dataTable value="#{singleProject.atividades}" rows="5" paginator="true" var="issue" rendered="#{not empty singleProject.atividades}">
 												<f:facet name="header">
-													<h:outputText value="Atividades do Projeto: #{singleProject.key}"/>
+													<p:graphicImage value="../imagens/taskPanel.png"/>
+													<h:outputText value=" Atividades"/>
 												</f:facet>
 												<p:column style="width:16px">
-										            <p:rowToggler />
+										            <p:rowToggler/>
 										        </p:column>
-												<p:column headerText="Atividade" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/task.png"/>
+														<br/>
+														<h:outputText value="Atividade"/>
+													</f:facet>
 													<h:outputText value="#{issue.summary}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/assigned.png"/>
+														<br/>
+														<h:outputText value="Assigned"/>
+													</f:facet>
 													<h:outputText value="#{issue.assigned}" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Status" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/status.png"/>
+														<br/>
+														<h:outputText value="Status"/>
+													</f:facet>
 													<h:outputText value="#{issue.status}" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/key.png"/>
+														<br/>
+														<h:outputText value="Chave"/>
+													</f:facet>
 													<h:outputText value="#{issue.key}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tipo" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/type.png"/>
+														<br/>
+														<h:outputText value="Tipo"/>
+													</f:facet>
 													<h:outputText value="#{issue.issueType}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Data Criação" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/date.png"/>
+														<br/>
+														<h:outputText value="Data Criação"/>
+													</f:facet>
 													<h:outputText value="#{issue.created}" 
 															escape="false" style="white-space: pre-line; font-size: small;">
 														<f:convertDateTime pattern="dd/MM/yyyy"/>
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Resolução" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/resolution.png"/>
+														<br/>
+														<h:outputText value="Resolução"/>
+													</f:facet>
 													<h:outputText value="#{issue.resolution}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tempo Estimado" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/estimatedTime.png"/>
+														<br/>
+														<h:outputText value="Tempo Estimado"/>
+													</f:facet>
 													<h:outputText value="#{issue.originalEstimate}h" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/timeSpent.png"/>
+														<br/>
+														<h:outputText value="Tempo Gasto"/>
+													</f:facet>
 													<h:outputText value="#{issue.formatedTimeSpent}" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Tempo Restante" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/remainingEstimate.png"/>
+														<br/>
+														<h:outputText value="Tempo Restante"/>
+													</f:facet>
 													<h:outputText value="#{issue.remainingEstimate}h" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Work Ratio" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/ratio.png"/>
+														<br/>
+														<h:outputText value="Work Ratio"/>
+													</f:facet>
 													<h:outputText value="#{issue.workRatio}%" escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/creator.png"/>
+														<br/>
+														<h:outputText value="Criador"/>
+													</f:facet>
 													<h:outputText value="#{issue.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
 												
 												<p:rowExpansion>
 													<p:dataTable value="#{issue.timesheets}" var="worklog" rows="10" paginator="true" rendered="#{not empty issue.timesheets}">
 														<f:facet name="header">
-															<h:outputText value="Worklogs da Atividade: #{issue.key}"/>
+															<p:graphicImage value="../imagens/worklogPanel.png"/>
+															<h:outputText value=" Worklogs"/>
 														</f:facet>
-														<p:column headerText="Usuário" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/worklogUser.png"/>
+																<br/>
+																<h:outputText value="Usuário"/>
+															</f:facet>
 															<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
-														<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/worklogTime.png"/>
+																<br/>
+																<h:outputText value="Tempo Gasto"/>
+															</f:facet>
 															<h:outputText value="#{worklog.formatedTimeSpent}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
-														<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/date.png"/>
+																<br/>
+																<h:outputText value="Data"/>
+															</f:facet>
 															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;">
 																<f:convertDateTime pattern="dd/MM/yyyy"/>
 															</h:outputText>
 														</p:column>
-														<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/worklogComment.png"/>
+																<br/>
+																<h:outputText value="Comentário"/>
+															</f:facet>
 															<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
 													</p:dataTable>
@@ -163,7 +264,11 @@
 								<br/>
 								<br/>
 								<hr/>
-								<p:panel header="Projetos" id="projectResults" style="border:0px;">
+								<p:panel id="projectResults" style="border:0px;">
+									<f:facet name="header">
+										<p:graphicImage value="../imagens/projectPanel.png"/>
+										<h:outputText value=" Projetos"/>
+									</f:facet>
 									<p:messages id="messages" />
 									<p:dataTable value="#{reportBean.projetos}" var="pro"
 											rendered="#{not empty reportBean.projetos}"
@@ -171,98 +276,195 @@
 									 	<p:column style="width:16px">
 								            <p:rowToggler />
 								        </p:column>
-										<p:column headerText="Projeto" style="white-space: pre-line; font-size: small;">
+										<p:column style="white-space: pre-line; font-size: small;">
+											<f:facet name="header">
+												<p:graphicImage value="../imagens/project.png"/>
+												<br/>
+												<h:outputText value="Projeto"/>
+											</f:facet>
 											<h:outputText value="#{pro.project}" 
 											escape="false" style="white-space: pre-line; font-size: small;"/>
 										</p:column>
-										<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+										<p:column style="white-space: pre-line; font-size: small;">
+											<f:facet name="header">
+												<p:graphicImage value="../imagens/key.png"/>
+												<br/>
+												<h:outputText value="Chave"/>
+											</f:facet>
 											<h:outputText value="#{pro.key}" 
 											escape="false" style="white-space: pre-line; font-size: small;"/>
 										</p:column>
-										<p:column headerText="Data de Criação" style="white-space: pre-line; font-size: small;">
-												<h:outputText value="#{pro.dataCreate}" 
-														escape="false" style="white-space: pre-line; font-size: small;">
-													<f:convertDateTime pattern="dd/MM/yyyy"/>
-												</h:outputText>
+										<p:column style="white-space: pre-line; font-size: small;">
+											<f:facet name="header">
+												<p:graphicImage value="../imagens/projectHammer.png"/>
+												<br/>
+												<h:outputText value="Data de Criação"/>
+											</f:facet>
+											<h:outputText value="#{pro.dataCreate}" 
+													escape="false" style="white-space: pre-line; font-size: small;">
+												<f:convertDateTime pattern="dd/MM/yyyy"/>
+											</h:outputText>
 										</p:column>
 										
 										<p:rowExpansion>
 											<p:dataTable value="#{pro.atividades}" rows="5" paginator="true" var="issue" rendered="#{not empty pro.atividades}">
 												<f:facet name="header">
-													<h:outputText value="Atividades do Projeto: #{pro.key}"/>
+													<p:graphicImage value="../imagens/taskPanel.png"/>
+													<h:outputText value=" Atividades"/>
 												</f:facet>
 												<p:column style="width:16px">
-										            <p:rowToggler />
+										            <p:rowToggler/>
 										        </p:column>
-												<p:column headerText="Atividade" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/task.png"/>
+														<br/>
+														<h:outputText value="Atividade"/>
+													</f:facet>
 													<h:outputText value="#{issue.summary}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Assigned" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/assigned.png"/>
+														<br/>
+														<h:outputText value="Assigned"/>
+													</f:facet>
 													<h:outputText value="#{issue.assigned}" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Status" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/status.png"/>
+														<br/>
+														<h:outputText value="Status"/>
+													</f:facet>
 													<h:outputText value="#{issue.status}" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Chave" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/key.png"/>
+														<br/>
+														<h:outputText value="Chave"/>
+													</f:facet>
 													<h:outputText value="#{issue.key}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tipo" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/type.png"/>
+														<br/>
+														<h:outputText value="Tipo"/>
+													</f:facet>
 													<h:outputText value="#{issue.issueType}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Data Criação" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/date.png"/>
+														<br/>
+														<h:outputText value="Data Criação"/>
+													</f:facet>
 													<h:outputText value="#{issue.created}" 
-																escape="false" style="white-space: pre-line; font-size: small;">
+															escape="false" style="white-space: pre-line; font-size: small;">
 														<f:convertDateTime pattern="dd/MM/yyyy"/>
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Resolução" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/resolution.png"/>
+														<br/>
+														<h:outputText value="Resolução"/>
+													</f:facet>
 													<h:outputText value="#{issue.resolution}" 
 														escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tempo Estimado" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/estimatedTime.png"/>
+														<br/>
+														<h:outputText value="Tempo Estimado"/>
+													</f:facet>
 													<h:outputText value="#{issue.originalEstimate}h" 
 													escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
-												<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/timeSpent.png"/>
+														<br/>
+														<h:outputText value="Tempo Gasto"/>
+													</f:facet>
 													<h:outputText value="#{issue.formatedTimeSpent}" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Tempo Restante" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/remainingEstimate.png"/>
+														<br/>
+														<h:outputText value="Tempo Restante"/>
+													</f:facet>
 													<h:outputText value="#{issue.remainingEstimate}h" 
 													escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Work Ratio" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/ratio.png"/>
+														<br/>
+														<h:outputText value="Work Ratio"/>
+													</f:facet>
 													<h:outputText value="#{issue.workRatio}%" escape="false" style="white-space: pre-line; font-size: small;">
 													</h:outputText>
 												</p:column>
-												<p:column headerText="Criador" style="white-space: pre-line; font-size: small;">
+												<p:column style="white-space: pre-line; font-size: small;">
+													<f:facet name="header">
+														<p:graphicImage value="../imagens/creator.png"/>
+														<br/>
+														<h:outputText value="Criador"/>
+													</f:facet>
 													<h:outputText value="#{issue.creator}" escape="false" style="white-space: pre-line; font-size: small;"/>
 												</p:column>
 												
 												<p:rowExpansion>
 													<p:dataTable value="#{issue.timesheets}" var="worklog" rows="10" paginator="true" rendered="#{not empty issue.timesheets}">
 														<f:facet name="header">
-															<h:outputText value="Worklogs da Atividade: #{issue.key}"/>
+															<p:graphicImage value="../imagens/worklogPanel.png"/>
+															<h:outputText value=" Worklogs"/>
 														</f:facet>
-														<p:column headerText="Usuário" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/worklogUser.png"/>
+																<br/>
+																<h:outputText value="Usuário"/>
+															</f:facet>
 															<h:outputText value="#{worklog.userName}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
-														<p:column headerText="Tempo Gasto" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/worklogTime.png"/>
+																<br/>
+																<h:outputText value="Tempo Gasto"/>
+															</f:facet>
 															<h:outputText value="#{worklog.formatedTimeSpent}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
-														<p:column headerText="Data" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/date.png"/>
+																<br/>
+																<h:outputText value="Data"/>
+															</f:facet>
 															<h:outputText value="#{worklog.date}" escape="false" style="white-space: pre-line; font-size: small;">
 																<f:convertDateTime pattern="dd/MM/yyyy"/>
 															</h:outputText>
 														</p:column>
-														<p:column headerText="Comentario" style="white-space: pre-line; font-size: small;">
+														<p:column style="white-space: pre-line; font-size: small;">
+															<f:facet name="header">
+																<p:graphicImage value="../imagens/worklogComment.png"/>
+																<br/>
+																<h:outputText value="Comentário"/>
+															</f:facet>
 															<h:outputText value="#{worklog.comment}" escape="false" style="white-space: pre-line; font-size: small;"/>
 														</p:column>
 													</p:dataTable>
