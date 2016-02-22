@@ -128,6 +128,7 @@ public class ReportBean implements Serializable {
 					new DAO(jiraServices.getAllResources()).insert(this.projetos);
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, na transação com o Banco de dados."));
 			}
 		} else {
@@ -153,6 +154,7 @@ public class ReportBean implements Serializable {
 				searchProjectByKey();
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, verifique a pesquisa realizada."));
 		}
 		long endTime   = System.currentTimeMillis();

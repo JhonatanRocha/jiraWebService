@@ -104,6 +104,7 @@ public class JiraServices implements Serializable {
 			List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, null, null);//getAtividades(results);
 			if(jiraIssues.size() > 0) {				
 				project.setAtividades(jiraIssues);
+				project.setDataCreate(issues.get(0).getCreationDate().toDate());
 				projects.add(project);
 			}
 						
