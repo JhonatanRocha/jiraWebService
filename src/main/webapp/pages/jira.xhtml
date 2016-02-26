@@ -15,11 +15,17 @@
 			    	<p:growl id="growl" globalOnly="true" autoUpdate="true" showDetail="true" />
 			    	<p:panel id="panel">
 				     	<f:facet name="header">
-							<h:panelGrid columns="2">
+							<h:panelGrid columns="1">
+						    	<h:panelGrid columns="2">
 						    	<img src="../imagens/EMC_logo.png"/>
 						   		<h:outputText value=" - RELATÓRIOS DO JIRA" />
 						  	</h:panelGrid>
+						  	<hr/>
+						  	<h:outputLabel value="#{login.userDisplayName}"/>
+						   	<p:commandLink action="#{login.logout}" icon="ui-icon-power" value="Logout"/>
+						  	</h:panelGrid>
 						</f:facet>
+						<br/>
 						<p:tabView>
 							<p:tab title="Worklogs">
 								<fieldset>
