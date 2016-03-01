@@ -12,6 +12,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.SearchRestClient;
@@ -44,11 +46,11 @@ public class JiraServices implements Serializable {
 	private Iterable<BasicProject> allBasicProjects;
 	private Configuration bundle;
     
-	public JiraServices() {
+	public JiraServices(String user, String password) {
 		
 		try {
 			this.bundle = new PropertiesConfiguration("config.properties");
-			this.jiraUtil = new JiraUtil();
+			this.jiraUtil = new JiraUtil(user, password);
 			this.restClient = jiraUtil.createClient(this.bundle);
 			this.allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
 		} catch (Exception e) {
@@ -71,7 +73,7 @@ public class JiraServices implements Serializable {
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
 
-			boolean updateFlag = false;
+			/*boolean updateFlag = false;
 			for (Issue issue : issues) {
 				if(this.jiraUtil.isBetweenDate(issue.getUpdateDate(), initialDate, finalDate)) {
 					updateFlag = true;
@@ -79,14 +81,14 @@ public class JiraServices implements Serializable {
 				}
 			}
 			
-			if (updateFlag) {
-				List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, initialDate, finalDate);
+			if (updateFlag) {*/
+				List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(issues, initialDate, finalDate);
 				if (jiraIssues.size() > 0) {
 					project.setAtividades(jiraIssues);
 					project.setDataCreate(issues.get(0).getCreationDate().toDate());
 					projects.add(project);
 				}
-			}	
+			//}	
 		}
 		return projects;
 	}
@@ -101,7 +103,7 @@ public class JiraServices implements Serializable {
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
 			
-			List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, null, null);//getAtividades(results);
+			List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(issues, null, null);//getAtividades(results);
 			if(jiraIssues.size() > 0) {				
 				project.setAtividades(jiraIssues);
 				project.setDataCreate(issues.get(0).getCreationDate().toDate());
@@ -125,15 +127,13 @@ public class JiraServices implements Serializable {
     public List<JiraProject> getallProjects(String filter) throws InterruptedException, ExecutionException, ConfigurationException, IOException{
     	List<JiraProject> projects = new ArrayList<JiraProject>();
     	for (BasicProject basicProject : this.allBasicProjects) {
-			if(basicProject.getName().length() >= 5) {
-				if(basicProject.getName().substring(2).startsWith(filter)) {
-					Project project = this.jiraUtil.getProjectFromKey(basicProject.getKey());
-					JiraProject jiraproject = new JiraProject();
-					jiraproject.setKey(project.getKey());
-					jiraproject.setProject(project.getName());
-					jiraproject.setId(project.getId());
-					projects.add(jiraproject);
-				}
+			if(basicProject.getName().substring(2).startsWith(filter)) {
+				Project project = this.jiraUtil.getProjectFromKey(basicProject.getKey());
+				JiraProject jiraproject = new JiraProject();
+				jiraproject.setKey(project.getKey());
+				jiraproject.setProject(project.getName());
+				jiraproject.setId(project.getId());
+				projects.add(jiraproject);
 			}
 		}
     	return projects;
@@ -166,6 +166,7 @@ public class JiraServices implements Serializable {
 
 	public JiraProject getJiraProject(String projectKey) throws Exception {
 
+
 		Project project = this.restClient.getProjectClient().getProject(projectKey).claim();
 			
 		String jql = "project = " + project.getKey();
@@ -174,8 +175,10 @@ public class JiraServices implements Serializable {
 		List<Issue> issues = (List<Issue>) results.getIssues();
 		DateTime creationDate = issues.get(0).getCreationDate();
 		Collections.sort(issues, new ComparatorIssue());
+			
+		List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(issues, null, null);
+
 		
-		List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, null, null); //getAtividades(results);
 		JiraProject jiraproject = new JiraProject();
 		jiraproject.setKey(project.getKey());
 		jiraproject.setProject(project.getName());
@@ -217,7 +220,7 @@ public class JiraServices implements Serializable {
 		DateTime creationDate = issues.get(0).getCreationDate();
 		Collections.sort(issues, new ComparatorIssue());
 		
-		List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(results, initialDate, finalDate);
+		List<JiraIssue> jiraIssues = getAtividadesUsingDateInterval(issues, initialDate, finalDate);
 		
 		if (jiraIssues.size() > 0) {
 			
@@ -234,14 +237,12 @@ public class JiraServices implements Serializable {
 		}
 	}
 	
-	private List<JiraIssue> getAtividadesUsingDateInterval(SearchResult results, DateTime initialDate, DateTime finalDate) throws Exception {
+	private List<JiraIssue> getAtividadesUsingDateInterval(List<Issue> issues, DateTime initialDate, DateTime finalDate) throws Exception {
 		
 		List<JiraIssue> jiraIssues = new ArrayList<JiraIssue>();
-		for (final BasicIssue result : results.getIssues()) {
-			
-			Issue issue = this.restClient.getIssueClient().getIssue(result.getKey()).claim();
-			List<JiraTimesheet> worklogList = new ArrayList<>();
-			worklogList = getTimesheetsFromIssueKeyUsingDate(issue, initialDate, finalDate);
+		for (Issue issue : issues) {
+
+			List<JiraTimesheet> worklogList = getTimesheetsFromIssueKeyUsingDate(issue, initialDate, finalDate);
 			
 			if(worklogList.size() > 0) {
 				JiraIssue jiraIssue = this.jiraUtil.getJiraIssueFromDateInterval(issue, worklogList, initialDate, finalDate);
@@ -266,4 +267,42 @@ public class JiraServices implements Serializable {
         	return jiraTimesheets;
         }
 	}
+	
+	public JiraProject getProjectFromIssueKeyBetweenDates(String issueKey, DateTime initialDate, DateTime finalDate) throws Exception {
+		JiraProject jiraProject = new JiraProject();
+		Issue issue = this.restClient.getIssueClient().getIssue(issueKey).claim();
+		
+		
+		List<JiraTimesheet> worklogList = new ArrayList<>();
+		worklogList = getTimesheetsFromIssueKeyUsingDate(issue, initialDate, finalDate);
+		if(worklogList.size() > 0){
+			JiraIssue jiraIssue = this.jiraUtil.getJiraIssueFromDateInterval(issue, worklogList, initialDate, finalDate);
+			
+			if(jiraIssue != null) {
+				JiraIssue[] jiraissues = new JiraIssue[] {jiraIssue};
+				jiraProject.setAtividades(Arrays.asList(jiraissues));
+				jiraProject.setProject(issue.getProject().getName());
+				jiraProject.setId(issue.getId());
+				jiraProject.setKey(issue.getProject().getKey());
+				jiraProject.setDataCreate(issue.getCreationDate().toDate());
+			}
+		} else {
+			return null;
+		}
+		return jiraProject;
+	}
+	
+	public JiraProject getProjectTuning(String projectKey, String issueKey, 
+										String client, String resourceName, 
+										DateTime initialDate, DateTime finalDate) throws Exception {
+		
+		JiraProject jiraProject = new JiraProject();
+
+		if(projectKey == null && issueKey == null && client == null){
+			
+		}
+		
+		return jiraProject;
+	}
+	
 }

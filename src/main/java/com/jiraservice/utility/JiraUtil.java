@@ -41,6 +41,14 @@ public class JiraUtil implements Serializable {
 	
 	private static final long serialVersionUID = -3813483976157592850L;
 
+	private String user;
+	private String pass;
+	
+	public JiraUtil(String user, String pass) {
+		this.user = user;
+		this.pass = pass;
+	}
+	
 	/**
      * This method create the connection
      * of the Web Service Client from JIRA.
@@ -54,8 +62,8 @@ public class JiraUtil implements Serializable {
 		JiraRestClient restClient = null;
 		try {
 			restClient = factory.createWithBasicHttpAuthentication(new URI(config.getString("server")), 
-																			config.getString("usuario"), 
-																			config.getString("senha"));
+																			this.user, 
+																			this.pass);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -77,12 +85,18 @@ public class JiraUtil implements Serializable {
 	
 	public JiraIssue getJiraIssueFromDateInterval(Issue issue, List<JiraTimesheet> worklogList, DateTime initialDate, DateTime finalDate) throws JSONException {
 		
-		Integer tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
 		if(issue.getAssignee() != null) {
 
 			String assignedUser = issue.getAssignee().getName();
+			Integer tempoEstimado = 0;
+			int remainingTime = 0;
 			String issueType = "";
 			String resolution = "";
+			
+			if(issue.getTimeTracking() != null){
+				tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
+				remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
+			}
 			
 			if(issue.getIssueType() != null){
 				issueType = issue.getIssueType().getName();
@@ -91,22 +105,22 @@ public class JiraUtil implements Serializable {
 			if(issue.getResolution() != null){
 				resolution = issue.getResolution().getName();
 			}
-				
-			int remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
 			
-			Object workrate = issue.getField("workratio").getValue();
+			JSONObject progressJsonField = (JSONObject) issue.getField("progress").getValue();
+			int timespent = Integer.parseInt(progressJsonField.get("total").toString()) / 60;
+			Long workratio = Long.valueOf(progressJsonField.get("percent").toString());
+			
 			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
-			
 			String creator = jsonIssueCreator.get("name").toString();
 
 			JiraIssue jiraIssue = null;
 
-			if(initialDate != null && finalDate != null && isBetweenDate(issue.getUpdateDate(), initialDate, finalDate)) {
+			if(initialDate != null && finalDate != null) {
 				
 				jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
 										  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
-										  issue.getTimeTracking().getTimeSpentMinutes(), remainingTime, issue.getStatus().getName(), 
-										  Long.valueOf(workrate.toString()).longValue(), creator, resolution,
+										  timespent, remainingTime, issue.getStatus().getName(), 
+										  workratio, creator, resolution,
 										  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
 			
 				if(issue.getDueDate() != null){					
@@ -117,8 +131,8 @@ public class JiraUtil implements Serializable {
 				
 				jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
 						  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
-						  issue.getTimeTracking().getTimeSpentMinutes(), remainingTime, issue.getStatus().getName(), 
-						  Long.valueOf(workrate.toString()).longValue(), creator, resolution,
+						  timespent, remainingTime, issue.getStatus().getName(), 
+						  workratio, creator, resolution,
 						  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
 
 				if(issue.getDueDate() != null){					
@@ -132,7 +146,7 @@ public class JiraUtil implements Serializable {
 	
 	public ClientResponse requestWorklogREST(Issue issue, Configuration config) throws ConfigurationException {
 		String apiRestUrl = config.getString("server") + "/rest/api/latest/issue/"+ issue.getKey() + "/worklog";
-		String authUserPass = config.getString("usuario") + ":" + config.getString("senha");
+		String authUserPass = this.user + ":" + this.pass;
         String authEncryption = new Base64().encodeToString(authUserPass.getBytes());
  
         Client restClient = Client.create();
@@ -145,8 +159,8 @@ public class JiraUtil implements Serializable {
         return resp;
 	}
 	
-	public List<JiraTimesheet> retrieveJiraTimesheetsFromJSON(String outputJson, Issue issue, DateTime initialDate, DateTime finalDate) 
-			throws JSONException {
+	public List<JiraTimesheet> retrieveJiraTimesheetsFromJSON(String outputJson, Issue issue, 
+			DateTime initialDate, DateTime finalDate) throws JSONException {
 		
 		List<JiraTimesheet> jiraTimesheets = new ArrayList<>();
     	JSONObject obj = new JSONObject(outputJson);
@@ -165,14 +179,15 @@ public class JiraUtil implements Serializable {
 	        		String id = jsonObject.getString("id");
 	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
 	        		String author = jsonObjectUpdateAuthor.getString("displayName");
-	        		Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
-	        	    
+	        		  
+        			Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
+		        	    
 	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
-	        	    									 issue.getSummary(), 
-	        	    									 worklogStartedDate.toDate(), 
-	        	    									 author, 
-	        	    									 timeSpentMinutes, 
-	        	    									 comment));
+		        	    									 issue.getSummary(), 
+		        	    									 worklogStartedDate.toDate(), 
+		        	    									 author, 
+		        	    									 timeSpentMinutes, 
+		        	    									 comment));		
         		} else if(initialDate == null && finalDate == null) {
         			
         			String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
@@ -180,8 +195,9 @@ public class JiraUtil implements Serializable {
 	        		String id = jsonObject.getString("id");
 	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
 	        		String author = jsonObjectUpdateAuthor.getString("displayName");
-	        		Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
-	        	    
+	        		
+        			Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
+		        	    
 	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
 	        	    									 issue.getSummary(), 
 	        	    									 worklogStartedDate.toDate(), 
@@ -193,5 +209,4 @@ public class JiraUtil implements Serializable {
     	}	
     	return jiraTimesheets;
 	}
-	
 }
