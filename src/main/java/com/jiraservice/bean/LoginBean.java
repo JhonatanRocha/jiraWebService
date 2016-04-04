@@ -26,6 +26,7 @@ public class LoginBean implements Serializable {
 	private String msg;
 	private String user;
 	private String userDisplayName;
+	private String profilePicture;
 
 	public String getPwd() {
 		return pwd;
@@ -57,6 +58,14 @@ public class LoginBean implements Serializable {
 
 	public void setUserDisplayName(String userDisplayName) {
 		this.userDisplayName = userDisplayName;
+	}
+
+	public String getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(String profilePicture) {
+		this.profilePicture = profilePicture;
 	}
 
 	//validate login
@@ -97,13 +106,14 @@ public class LoginBean implements Serializable {
 			if(resp.getStatus() == 200) {
 				String outputJson = resp.getEntity(String.class);
 				restaClient.destroy();
-				JSONObject obj = new JSONObject(outputJson);
-				String displayName = obj.getString("displayName");
+				JSONObject jsonObjt = new JSONObject(outputJson);
+				String displayName = jsonObjt.getString("displayName");
 				setUserDisplayName(displayName);
+				JSONObject avatarJSONObjt = new JSONObject(jsonObjt.getString("avatarUrls"));
+				setProfilePicture(avatarJSONObjt.getString("16x16"));
 				return true;
-			}else {
+			}else
 				return false;
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

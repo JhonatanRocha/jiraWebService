@@ -117,13 +117,11 @@ public class JiraUtil implements Serializable {
 				remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
 			}
 			
-			if(issue.getIssueType() != null){
+			if(issue.getIssueType() != null)
 				issueType = issue.getIssueType().getName();
-			}
 			
-			if(issue.getResolution() != null){
+			if(issue.getResolution() != null)
 				resolution = issue.getResolution().getName();
-			}
 			
 			JSONObject progressJsonField = (JSONObject) issue.getField("progress").getValue();
 			int timespent = Integer.parseInt(progressJsonField.get("total").toString()) / 60;
@@ -142,9 +140,9 @@ public class JiraUtil implements Serializable {
 										  workratio, creator, resolution,
 										  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
 			
-				if(issue.getDueDate() != null){					
+				if(issue.getDueDate() != null)			
 					jiraIssue.setDueDate(issue.getDueDate().toDate());
-				}
+				
 				return jiraIssue;
 			}else if(initialDate == null && finalDate == null){
 				
@@ -154,9 +152,9 @@ public class JiraUtil implements Serializable {
 						  workratio, creator, resolution,
 						  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
 
-				if(issue.getDueDate() != null){					
+				if(issue.getDueDate() != null)				
 					jiraIssue.setDueDate(issue.getDueDate().toDate());
-				}
+				
 				return jiraIssue;
 			}
 		}
