@@ -1,27 +1,21 @@
 package com.jiraservice.utility;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.jiraservice.model.JiraIssue;
 import com.jiraservice.model.JiraTimesheet;
@@ -32,7 +26,7 @@ import com.sun.jersey.api.client.WebResource;
 /**
  * <P>
  * <B>Description :</B><BR>
- * Class containing the integration service with Atlassian JIRA.
+ * Class containing all utility methods from Atlassian JIRA REST API and REST Service.
  * </P>
  * 
  * @author <a href="mailto:jcristianrocha@gmail.com">Jhonatan Rocha</a>
@@ -53,8 +47,8 @@ public class JiraUtil implements Serializable {
      * This method create the connection
      * of the Web Service Client from JIRA.
      * 
-     * @return JiraRestClient
-     * @throws ConfigurationException 
+     * @return JiraRestClient.
+     * @throws ConfigurationException .
      */
 	public JiraRestClient createClient(Configuration config) throws ConfigurationException {
     	
@@ -70,21 +64,46 @@ public class JiraUtil implements Serializable {
 		return restClient;
 	}
 	
+	/**
+	 * Check if date is between two dates.
+	 * @param dateToCompare.
+	 * @param initialDate.
+	 * @param finalDate.
+	 * @return true/false.
+	 */
 	public boolean isBetweenDate(DateTime dateToCompare, DateTime initialDate, DateTime finalDate){
-	    DateTime parsedDate = DateTime.parse(DateTimeFormat.forPattern("yyyy-MM-dd").print(dateToCompare));
-		return parsedDate.isAfter(initialDate) && parsedDate.isBefore(finalDate) 
-				|| parsedDate.equals(initialDate) || parsedDate.equals(finalDate);
-	}
-	
-	public Project getProjectFromKey(String projectKey) throws InterruptedException, ExecutionException, ConfigurationException, IOException {
-		JiraRestClient jiraRestClient = createClient(new PropertiesConfiguration("config.properties"));
-		Project project = jiraRestClient.getProjectClient().getProject(projectKey).get();
-		jiraRestClient.close();
-		return project;
-	}
-	
-	public JiraIssue getJiraIssueFromDateInterval(Issue issue, List<JiraTimesheet> worklogList, DateTime initialDate, DateTime finalDate) throws JSONException {
 		
+		return dateToCompare.isEqual(initialDate) || 
+							dateToCompare.isEqual(finalDate) ||
+							(initialDate.isBefore(dateToCompare) && finalDate.isAfter(dateToCompare));
+	}
+	
+	/**
+	 * Remove and set 00 on hour/min/sec/millis time values.
+	 * @param dateTime.
+	 * @return DateTime.
+	 */
+	public DateTime removeTime(DateTime dateTime) {
+		if(dateTime != null) {
+			String year = String.valueOf(dateTime.getYear());
+			String month = String.valueOf(dateTime.getMonthOfYear());
+			String day = String.valueOf(dateTime.getDayOfMonth());
+			String stringDate = year + "-" + month + "-" + day + "T00:00:00.000-00:00";
+			return DateTime.parse(stringDate);
+		} else
+			return null;
+    }
+	
+	/**
+	 * Get the JiraIssue using Date interval.
+	 * @param issue.
+	 * @param worklogList.
+	 * @param initialDate.
+	 * @param finalDate.
+	 * @return JiraIssue.
+	 * @throws JSONException.
+	 */
+	public JiraIssue getJiraIssueFromDateInterval(Issue issue, List<JiraTimesheet> worklogList, DateTime initialDate, DateTime finalDate) throws JSONException {
 		if(issue.getAssignee() != null) {
 
 			String assignedUser = issue.getAssignee().getName();
@@ -144,6 +163,13 @@ public class JiraUtil implements Serializable {
 		return null;
 	}
 	
+	/**
+	 * Get the clientResponse of JIRA REST API from worklog url.
+	 * @param issue.
+	 * @param config.
+	 * @return ClientResponse.
+	 * @throws ConfigurationException.
+	 */
 	public ClientResponse requestWorklogREST(Issue issue, Configuration config) throws ConfigurationException {
 		String apiRestUrl = config.getString("server") + "/rest/api/latest/issue/"+ issue.getKey() + "/worklog";
 		String authUserPass = this.user + ":" + this.pass;
@@ -159,8 +185,18 @@ public class JiraUtil implements Serializable {
         return resp;
 	}
 	
+	/**
+	 * Parse the outputJson JSON to build JiraTimesheet.
+	 * @param outputJson.
+	 * @param issue.
+	 * @param initialDate.
+	 * @param finalDate.
+	 * @param resourceName.
+	 * @return List<JiraTimesheet>.
+	 * @throws JSONException.
+	 */
 	public List<JiraTimesheet> retrieveJiraTimesheetsFromJSON(String outputJson, Issue issue, 
-			DateTime initialDate, DateTime finalDate) throws JSONException {
+			DateTime initialDate, DateTime finalDate, String resourceName) throws JSONException {
 		
 		List<JiraTimesheet> jiraTimesheets = new ArrayList<>();
     	JSONObject obj = new JSONObject(outputJson);
@@ -170,38 +206,75 @@ public class JiraUtil implements Serializable {
         	
         	for(int i = 0 ; i < jsonObjArray.length() ; i++) {
         		JSONObject jsonObject = jsonObjArray.getJSONObject(i);
-        		DateTime worklogStartedDate = DateTime.parse(jsonObject.getString("started"));
+        		DateTime worklogStartedDate = removeTime(DateTime.parse(jsonObject.getString("started")));
+        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
+        		String author = jsonObjectUpdateAuthor.getString("name");
+
+        		if (initialDate != null && 
+        				finalDate != null && 
+        				isBetweenDate(worklogStartedDate, initialDate, finalDate) && 
+        				resourceName.isEmpty()) {
         		
-        		if (initialDate != null && finalDate != null && isBetweenDate(worklogStartedDate, initialDate, finalDate)) {
-        		
+        			String authorDisplayedName = jsonObjectUpdateAuthor.getString("displayName");
 	        		String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
 	        		String comment = jsonObject.getString("comment");
 	        		String id = jsonObject.getString("id");
-	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
-	        		String author = jsonObjectUpdateAuthor.getString("displayName");
-	        		  
         			Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
 		        	    
 	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
 		        	    									 issue.getSummary(), 
 		        	    									 worklogStartedDate.toDate(), 
-		        	    									 author, 
+		        	    									 authorDisplayedName, 
 		        	    									 timeSpentMinutes, 
 		        	    									 comment));		
-        		} else if(initialDate == null && finalDate == null) {
+        		}else if (initialDate != null && 
+        					finalDate != null && 
+        					isBetweenDate(worklogStartedDate, initialDate, finalDate) && 
+        					!resourceName.isEmpty() && author.equals(resourceName)) {
         			
+        			String authorDisplayedName = jsonObjectUpdateAuthor.getString("displayName");
+	        		String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
+	        		String comment = jsonObject.getString("comment");
+	        		String id = jsonObject.getString("id");
+        			Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
+		        	    
+	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
+		        	    									 issue.getSummary(), 
+		        	    									 worklogStartedDate.toDate(), 
+		        	    									 authorDisplayedName, 
+		        	    									 timeSpentMinutes, 
+		        	    									 comment));		
+        		} else if(initialDate == null && 
+        					finalDate == null && 
+        					resourceName.isEmpty()) {
+        			
+        			String authorDisplayedName = jsonObjectUpdateAuthor.getString("displayName");
         			String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
 	        		String comment = jsonObject.getString("comment");
 	        		String id = jsonObject.getString("id");
-	        		JSONObject jsonObjectUpdateAuthor = jsonObject.getJSONObject("updateAuthor");
-	        		String author = jsonObjectUpdateAuthor.getString("displayName");
-	        		
         			Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
 		        	    
 	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
 	        	    									 issue.getSummary(), 
 	        	    									 worklogStartedDate.toDate(), 
-	        	    									 author, 
+	        	    									 authorDisplayedName, 
+	        	    									 timeSpentMinutes, 
+	        	    									 comment));
+        		} else if(initialDate == null && 
+        					finalDate == null && 
+        					!resourceName.isEmpty() && 
+        					author.equals(resourceName)) {
+        			
+        			String authorDisplayedName = jsonObjectUpdateAuthor.getString("displayName");
+        			String timeSpentSecond = jsonObject.getString("timeSpentSeconds");
+	        		String comment = jsonObject.getString("comment");
+	        		String id = jsonObject.getString("id");
+        			Integer timeSpentMinutes = Integer.parseInt(timeSpentSecond) / 60;
+		        	    
+	        	    jiraTimesheets.add(new JiraTimesheet(Long.parseLong(id),issue.getKey(), 
+	        	    									 issue.getSummary(), 
+	        	    									 worklogStartedDate.toDate(), 
+	        	    									 authorDisplayedName, 
 	        	    									 timeSpentMinutes, 
 	        	    									 comment));
         		}

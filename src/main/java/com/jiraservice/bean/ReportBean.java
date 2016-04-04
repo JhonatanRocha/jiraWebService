@@ -1,7 +1,6 @@
 package com.jiraservice.bean;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +17,16 @@ import com.jiraservice.dao.DAO;
 import com.jiraservice.model.JiraProject;
 import com.jiraservice.utility.Company;
 import com.jiraservice.utility.JiraServices;
+import com.jiraservice.utility.SearchBuilder;
+
+/**
+ * <P>
+ * <B>Description :</B><BR>
+ * Bean from the system containing all the data from the project, issue and worklog from Atlassian JIRA.
+ * </P>
+ * 
+ * @author <a href="mailto:jcristianrocha@gmail.com">Jhonatan Rocha</a>
+ */
 
 @ViewScoped
 @ManagedBean(name = "reportBean")
@@ -135,154 +144,57 @@ public class ReportBean implements Serializable {
 	public void setSelectedResource(String selectedResource) {
 		this.selectedResource = selectedResource;
 	}
-
-	public void searchIssues() throws Exception {
-		System.out.println("Buscando Atividades... " + new DateTime().toString());
-
-		if (!this.issueKey.isEmpty()) {
-			searchProjectByIssue();
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Digite a chave da Atividade."));
-		}
-	}
 	
+	/**
+	 * The Action Button from the jira.xhtml form will call this method.
+	 */
 	public void searchProjects() {
 		long startTime = System.currentTimeMillis();
 
 		try {
-			if(this.projectKey.isEmpty() && !this.selectedCompany.isEmpty()) {
-				if (this.dataInicial != null && this.dataFinal != null) {
-					searchProjectsBetweenDates();
-				} else{
-					searchProjectsByClient();
+			
+			if(this.dataInicial != null && this.dataFinal != null &&  !this.dataFinal.after(this.dataInicial))
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
+			
+			String jql = new SearchBuilder(this.projectKey, 
+											this.issueKey, 
+											this.selectedResource, 
+											this.dataInicial, 
+											this.dataFinal).build();
+			
+			if(!jql.isEmpty()) {	
+				this.projetos = this.jiraServices.searchProjectUsingJQL(jql ,
+						!this.selectedCompany.isEmpty() ? this.selectedCompany.toUpperCase() : "BR",
+								(this.dataInicial != null ? new DateTime(this.dataInicial) : null), 
+								(this.dataFinal != null ? new DateTime(this.dataFinal) : null),
+								this.selectedResource);
+			} else
+				this.projetos = this.jiraServices.getProjectsByClientPrefix(!this.selectedCompany.isEmpty() ? this.selectedCompany.toUpperCase() : "BR");
+			
+			if (this.projetos.size() > 0) {
+				try {
+					new DAO(jiraServices.getAllResources()).insert(this.projetos);
+					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Pesquisa Realizada com Sucesso!"));
+				} catch (Exception e) {
+					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+															"Erro na transação com o Banco de dados.", 
+															"Verifique se o banco de dados se encontra de pé ou a consistencia dos dados de pesquisa.");
+					FacesContext.getCurrentInstance().addMessage(null, message);
 				}
-			} else if (this.projectKey.isEmpty() && this.selectedCompany.isEmpty() && this.issueKey.isEmpty() && this.selectedResource.isEmpty()) {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Selecione um Cliente/Chave do Projeto/Chave da Atividade/Recurso."));
-			} else if (!this.projectKey.isEmpty() && this.dataInicial != null && this.dataFinal != null) {
-				searchProjectByKeyBetweenDates();
-			}else if(!this.selectedResource.isEmpty()){
-				searchProjectByResource();
-			}else if(!this.issueKey.isEmpty()) {
-				if (this.dataInicial != null && this.dataFinal != null) {
-					searchProjectByIssueBetweenDates();
-				} else {
-					searchProjectByIssue();
-				}
-			}
-			else {
-				searchProjectByKey();
+			} else { 
+				FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, 
+													"Nenhum projeto foi encontrado.", 
+													"A pesquisa não retornou nenhum resultado.");
+				FacesContext.getCurrentInstance().addMessage(null, message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, verifique a pesquisa realizada."));
+			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+													"Erro! Verifique se os dados da pesquisa estão corretos.", 
+													"Verifique se os dados nos campos de pesquisa estão corretos.");
+			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
 		long endTime   = System.currentTimeMillis();
 		System.out.println("Execução demorou: " + (endTime - startTime)/1000 + " segundos.");
-	}
-
-	private void searchProjectByKey() throws Exception {
-		this.projetos = new ArrayList<JiraProject>();
-		this.projetos.add(this.jiraServices.getJiraProject(this.projectKey));
-		
-		if (this.projetos.size() > 0) {
-			try {
-				new DAO(jiraServices.getAllResources()).insert(this.projetos);
-			} catch (Exception e) {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, na transação com o Banco de dados."));
-			}
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Projeto encontrado!"));
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-		}
-	}
-
-	private void searchProjectsBetweenDates() throws Exception {
-		if(this.dataFinal.after(this.dataInicial)) {
-			this.projetos = this.jiraServices.getProjectsBetweenDates(this.selectedCompany.toUpperCase(), new DateTime(this.dataInicial),new DateTime(this.dataFinal));
-			
-			if (this.projetos.size() > 0) {
-				new DAO(jiraServices.getAllResources()).insert(this.projetos);
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
-			} else {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-			}
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
-		}
-	}
-
-	private void searchProjectsByClient() throws Exception {
-		this.projetos = this.jiraServices.getAllProjetosByCliente(this.selectedCompany.toUpperCase());
-		
-		if (this.projetos.size() > 0) {
-			new DAO(jiraServices.getAllResources()).insert(this.projetos);
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-		}
-	}
-	
-	private void searchProjectByKeyBetweenDates() throws Exception {
-		if (this.dataFinal.after(this.dataInicial)) {
-			this.projetos = new ArrayList<JiraProject>();
-			JiraProject project = this.jiraServices.getProjectWorklogBetweenDates(this.projectKey, new DateTime(this.dataInicial),new DateTime(this.dataFinal));
-			if (project != null) {
-					this.projetos.add(project);
-			}
-			if(this.projetos.size() > 0) {
-				new DAO(jiraServices.getAllResources()).insert(this.projetos);
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos e seus devidos Worklogs"));
-			} else {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Nenhum Projeto/Worklog foi encontrado."));
-			}
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
-		}
-	}
-	
-	private void searchProjectByIssue() throws Exception {
-		this.projetos = new ArrayList<>(); 
-		this.projetos.add(this.jiraServices.getProjectFromIssueKey(this.issueKey));
-		
-		try {
-			if(!this.projetos.isEmpty()) {
-				new DAO(jiraServices.getAllResources()).insert(this.projetos);
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos e seus devidos Worklogs"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, na transação com o Banco de dados."));
-		}
-	}
-	
-	private void searchProjectByIssueBetweenDates()throws Exception {
-		if (this.dataFinal.after(this.dataInicial)) {
-			JiraProject jiraProject = this.jiraServices.getProjectFromIssueKeyBetweenDates(this.issueKey.toUpperCase(), new DateTime(this.dataInicial), new DateTime(this.dataFinal));
-			
-			try {
-				if(jiraProject != null) {
-					this.projetos = new ArrayList<>(); 
-					this.projetos.add(jiraProject);
-					new DAO(jiraServices.getAllResources()).insert(this.projetos);
-					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos e seus devidos Worklogs"));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Algum erro ocorreu, na transação com o Banco de dados."));
-			}
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("A Data inicial deve ser antes da Data final."));
-		}
-	}
-	
-	private void searchProjectByResource() throws Exception {
-		//this.projetos = this.jiraServices.getAllProjectsByResourceName(this.selectedResource, null, null);
-		
-		if (this.projetos.size() > 0) {
-			new DAO(jiraServices.getAllResources()).insert(this.projetos);
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Foram achados: " + this.projetos.size() + " projetos."));
-		} else {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Não foi achado nenhum projeto."));
-		}
 	}
 }
