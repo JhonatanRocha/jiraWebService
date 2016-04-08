@@ -172,16 +172,6 @@ public class JiraServices implements Serializable {
 						
 						if(jiraIssue != null) {
 							jiraIssues.add(jiraIssue);
-							/*JiraIssue[] jiraissues = new JiraIssue[] {jiraIssue};
-							JiraProject jiraProject = new JiraProject();
-							
-							jiraProject.setAtividades(Arrays.asList(jiraissues));
-							jiraProject.setProject(issue.getProject().getName());
-							jiraProject.setId(issue.getId());
-							jiraProject.setKey(issue.getProject().getKey());
-							jiraProject.setDataCreate(issue.getCreationDate().toDate());
-							projects.add(jiraProject);*/
-							
 						}
 					}
 					
