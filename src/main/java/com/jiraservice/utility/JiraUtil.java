@@ -104,59 +104,59 @@ public class JiraUtil implements Serializable {
 	 * @throws JSONException.
 	 */
 	public JiraIssue getJiraIssueFromDateInterval(Issue issue, List<JiraTimesheet> worklogList, DateTime initialDate, DateTime finalDate) throws JSONException {
-		if(issue.getAssignee() != null) {
+		
+		String assignedUser = "Não Atribuído";
+		Integer tempoEstimado = 0;
+		int remainingTime = 0;
+		String issueType = "";
+		String resolution = "";
+		
+		if(issue.getAssignee() != null)
+			assignedUser = issue.getAssignee().getName();
+	
+		if(issue.getTimeTracking() != null){
+			tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
+			remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
+		}
+		
+		if(issue.getIssueType() != null)
+			issueType = issue.getIssueType().getName();
+		
+		if(issue.getResolution() != null)
+			resolution = issue.getResolution().getName();
+		
+		JSONObject progressJsonField = (JSONObject) issue.getField("progress").getValue();
+		//int timespent = Integer.parseInt(progressJsonField.get("total").toString()) / 60;
+		Long workratio = Long.valueOf(progressJsonField.get("percent").toString());
+		
+		JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
+		String creator = jsonIssueCreator.get("name").toString();
 
-			String assignedUser = issue.getAssignee().getName();
-			Integer tempoEstimado = 0;
-			int remainingTime = 0;
-			String issueType = "";
-			String resolution = "";
-			
-			if(issue.getTimeTracking() != null){
-				tempoEstimado = (issue.getTimeTracking().getOriginalEstimateMinutes() == null ? 0 : issue.getTimeTracking().getOriginalEstimateMinutes())  / 60;
-				remainingTime = (issue.getTimeTracking().getRemainingEstimateMinutes() == null ? 0 : issue.getTimeTracking().getRemainingEstimateMinutes()) / 60;
-			}
-			
-			if(issue.getIssueType() != null)
-				issueType = issue.getIssueType().getName();
-			
-			if(issue.getResolution() != null)
-				resolution = issue.getResolution().getName();
-			
-			JSONObject progressJsonField = (JSONObject) issue.getField("progress").getValue();
-			int timespent = Integer.parseInt(progressJsonField.get("total").toString()) / 60;
-			Long workratio = Long.valueOf(progressJsonField.get("percent").toString());
-			
-			JSONObject jsonIssueCreator = (JSONObject) issue.getField("creator").getValue();
-			String creator = jsonIssueCreator.get("name").toString();
+		JiraIssue jiraIssue = null;
 
-			JiraIssue jiraIssue = null;
-
-			if(initialDate != null && finalDate != null) {
-				
-				jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
-										  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
-										  timespent, remainingTime, issue.getStatus().getName(), 
-										  workratio, creator, resolution,
-										  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
+		if(initialDate != null && finalDate != null) {
 			
-				if(issue.getDueDate() != null)			
-					jiraIssue.setDueDate(issue.getDueDate().toDate());
-				
-				return jiraIssue;
-			}else if(initialDate == null && finalDate == null){
-				
-				jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
-						  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
-						  timespent, remainingTime, issue.getStatus().getName(), 
-						  workratio, creator, resolution,
-						  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
+			jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
+									  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
+									  getTimeSpentInterval(worklogList), remainingTime, issue.getStatus().getName(), 
+									  workratio, creator, resolution,
+									  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
+		
+			if(issue.getDueDate() != null)			
+				jiraIssue.setDueDate(issue.getDueDate().toDate());
+			
+			return jiraIssue;
+		} else if(initialDate == null && finalDate == null) {
+			jiraIssue = new JiraIssue(issue.getKey(), issue.getSummary(), issueType,
+					  issue.getCreationDate().toDate(), assignedUser, tempoEstimado, 
+					  getTimeSpentInterval(worklogList), remainingTime, issue.getStatus().getName(), 
+					  workratio, creator, resolution,
+					  issue.getProject().getId(), issue.getUpdateDate().toDate(), worklogList);
 
-				if(issue.getDueDate() != null)				
-					jiraIssue.setDueDate(issue.getDueDate().toDate());
-				
-				return jiraIssue;
-			}
+			if(issue.getDueDate() != null)				
+				jiraIssue.setDueDate(issue.getDueDate().toDate());
+			
+			return jiraIssue;
 		}
 		return null;
 	}
@@ -279,5 +279,18 @@ public class JiraUtil implements Serializable {
         	}
     	}	
     	return jiraTimesheets;
+	}
+	
+	/**
+	 * Return the sum of all worklogs from single issue.
+	 * @param List<JiraTimesheet> worklogs
+	 * @return Integer
+	 */
+	public int getTimeSpentInterval(List<JiraTimesheet> worklogs){
+		Integer timeSpent = 0;
+		for (JiraTimesheet jiraTimesheet : worklogs) {
+			timeSpent += jiraTimesheet.getTimeSpent();
+		}
+		return timeSpent;
 	}
 }

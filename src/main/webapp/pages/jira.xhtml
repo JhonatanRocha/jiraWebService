@@ -15,39 +15,50 @@
 			    	<p:growl id="growl" globalOnly="true" autoUpdate="true" showDetail="true" />
 			    	<p:panel id="panel">
 				     	<f:facet name="header">
-							<h:panelGrid columns="1">
-						    	<h:panelGrid columns="2">
+						    	<h:panelGrid columns="6">
 						    	<img src="../imagens/EMC_logo.png"/>
-						   		<h:outputText value=" - RELATÓRIOS DO JIRA" />
-						  	</h:panelGrid>
-						  	<hr/>
-						  	<img src="#{login.profilePicture}" width="50" height="50"/>
-						  	<h:outputLabel value="#{login.userDisplayName}"/>
-						   	<p:commandLink action="#{login.logout}" icon="ui-icon-power" value="Logout"/>
+								<h:outputLabel value="Bem vindo, #{login.userDisplayName}." style="margin-left: 20px; margin-right: 5px"/>
+					    		<img src="#{login.profilePicture}" width="50" height="50" style="margin-left: 5px; margin-right: 5px"/>
+								<p:commandLink action="#{login.logout}" icon="ui-icon-power" value="Logout" style="margin-left: 20px; margin-right: 20px"/>
 						  	</h:panelGrid>
 						</f:facet>
 						<br/>
 						<p:tabView>
-							<p:tab title="Projetos e Atividades">
+							<p:tab title="RELATÓRIOS DO JIRA">
 								<fieldset>
-									<legend>Pesquisar os Projetos no JIRA</legend>
-								    <h:panelGrid columns="4">	
+									<legend>Projetos e Atividades</legend>
+								    <h:panelGrid columns="3">	
 								     	<h:outputLabel value="Data Inicial:"/>
-								     	<p:calendar locale="pt" value="#{reportBean.dataInicial}" effect="fold" showOn="button"/>
+								     	<p:calendar id="calendarInitialDate" locale="pt" value="#{reportBean.dataInicial}" effect="fold" showOn="button"/>
+								     	<p:tooltip for="calendarInitialDate" value="A data inicial deve ser MENOR que a data final."
+													showEffect="clip" hideEffect="explode" />
 								     	<h:outputLabel value="Data Final:"/>
-								     	<p:calendar locale="pt" value="#{reportBean.dataFinal}" effect="fold" showOn="button"/>
+								     	<p:calendar id="calendarfinalDate" locale="pt" value="#{reportBean.dataFinal}" effect="fold" showOn="button"/>
+								     	<p:tooltip for="calendarfinalDate" value="A data final deve ser MAIOR que a data inicial."
+													showEffect="clip" hideEffect="explode" />
 								     	<h:outputLabel value="Key do Projeto:"/>
 								     	<h:inputText id="projectKey" value="#{reportBean.projectKey}"/>
+								     	<p:tooltip for="projectKey" value="Digite a chave do Projeto."
+								     				showEffect="clip" hideEffect="explode" />
 								     	<h:outputLabel value="Chave da Atividade:"/>
 								     	<h:inputText id="issueKey" value="#{reportBean.issueKey}"/>
+								     	<p:tooltip for="issueKey" value="Digite a chave da Atividade."
+								     				showEffect="clip" hideEffect="explode" />
 								     	<h:outputLabel value="Recurso:"/> 	
-								     	<p:selectOneMenu value="#{reportBean.selectedResource}" editable="true" filter="true" filterMatchMode="startsWith">  
+								     	<p:selectOneMenu id="resourceNames" value="#{reportBean.selectedResource}" editable="true" filter="true" filterMatchMode="startsWith">  
 								    		<f:selectItems value="#{reportBean.jiraServices.allResources}" var="em" itemLabel="#{em.userName}" />  
 										</p:selectOneMenu>
+										<p:tooltip for="resourceNames" value="Selecione um Nome."
+								     				showEffect="clip" hideEffect="explode" />
 								     	<h:outputLabel value="Cliente:"/>
-								     	<p:selectOneMenu value="#{reportBean.selectedCompany}" editable="true">  
+								     	<p:selectOneMenu id="clientPrefixName" value="#{reportBean.selectedCompany}" editable="true">  
 								    		<f:selectItems value="#{reportBean.defaultCompanies}" var="em" itemLabel="#{em.valor}" />  
 										</p:selectOneMenu>
+										<p:tooltip for="clientPrefixName" value="Selecione a sigla que representa o cliente. 
+																				Caso o campo ficar em branco, a pesquisa irá levar em conta TODOS OS CLIENTES. 
+																				Caso o cliente não constar na lista para seleção,
+																				digite neste campo."
+								     				showEffect="clip" hideEffect="explode" />
 										<p:commandButton value="Pesquisar" actionListener="#{reportBean.searchProjects}" update="projectResults" icon="ui-icon-search"/>
 									</h:panelGrid>
 								</fieldset>

@@ -176,6 +176,7 @@ public class ReportBean implements Serializable {
 					new DAO(jiraServices.getAllResources()).insert(this.projetos);
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Pesquisa Realizada com Sucesso!"));
 				} catch (Exception e) {
+					e.printStackTrace();
 					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, 
 															"Erro na transação com o Banco de dados.", 
 															"Verifique se o banco de dados se encontra de pé ou a consistencia dos dados de pesquisa.");

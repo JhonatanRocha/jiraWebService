@@ -40,7 +40,6 @@ public class JiraServices implements Serializable {
 	private static final long serialVersionUID = 3072228013239966011L;
 	private JiraRestClient restClient;
 	private JiraUtil jiraUtil;
-	private Iterable<BasicProject> allBasicProjects;
 	private Configuration bundle;
     
 	public JiraServices(String user, String password) {
@@ -49,7 +48,6 @@ public class JiraServices implements Serializable {
 			this.bundle = new PropertiesConfiguration("config.properties");
 			this.jiraUtil = new JiraUtil(user, password);
 			this.restClient = jiraUtil.createClient(this.bundle);
-			this.allBasicProjects = this.restClient.getProjectClient().getAllProjects().get();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -154,7 +152,7 @@ public class JiraServices implements Serializable {
 
 		List<JiraProject> projects = new ArrayList<JiraProject>();
 
-		for(BasicProject project : this.allBasicProjects) {
+		for(BasicProject project : this.restClient.getProjectClient().getAllProjects().get()) {
 			
 			if(clientPrefix.equals("BR") && project.getName().substring(0, 2).startsWith(clientPrefix) || 
 					project.getName().substring(2).startsWith(clientPrefix)) {
@@ -206,41 +204,40 @@ public class JiraServices implements Serializable {
 		
 		SearchRestClient searchRestClient = this.restClient.getSearchClient();
 		SearchResult results = searchRestClient.searchJql(jql, 10000, 0, null).claim();
-		List<JiraProject> projects = new ArrayList<JiraProject>();
+		Map<String, JiraProject> projects = new HashMap<String, JiraProject>();
 		
 		if(results.getTotal() > 0) {
 			List<Issue> issues = (List<Issue>) results.getIssues();
 			Collections.sort(issues, new ComparatorIssue());
-			Map<String, JiraProject> newMap = new HashMap<String, JiraProject>();
+			JiraIssue jiraIssue = null;
 			for (Issue issue : issues) {
 				
 				if((clientPrefix.equals("BR") && issue.getProject().getName().substring(0, 2).startsWith(clientPrefix)) ||
 						(issue.getProject().getName().substring(2).startsWith(clientPrefix))) {
 
-					JiraIssue jiraIssue = getProjectFromIssueKeyBetweenDates(issue, this.jiraUtil.removeTime(initialDate),
+					jiraIssue = getProjectFromIssueKeyBetweenDates(issue, this.jiraUtil.removeTime(initialDate),
 																				this.jiraUtil.removeTime(finalDate), resourceName);
-					
-					if(newMap.containsKey(issue.getProject().getKey())) {
-						JiraProject jiraProject = newMap.get(issue.getProject().getKey());
+	
+					if(projects.containsKey(issue.getProject().getKey()) && jiraIssue != null) {
+						JiraProject jiraProject = projects.get(issue.getProject().getKey());
 						List<JiraIssue> atividades = new ArrayList<JiraIssue>();
 						atividades.add(jiraIssue);
 						atividades.addAll(jiraProject.getAtividades());
-						newMap.put(issue.getProject().getKey(), jiraProject);
-						projects = new ArrayList<JiraProject>(newMap.values());
-					} else {
+						jiraProject.setAtividades(atividades);
+						projects.put(issue.getProject().getKey(), jiraProject);
+					} else if(jiraIssue != null) {
 						JiraIssue[] jiraissues = new JiraIssue[] {jiraIssue};
-						JiraProject project = new JiraProject();
-						project.setAtividades(Arrays.asList(jiraissues));
-						project.setProject(issue.getProject().getName());
-						project.setId(issue.getId());
-						project.setKey(issue.getProject().getKey());
-						project.setDataCreate(issue.getCreationDate().toDate());
-						projects.add(project);
-						newMap.put(project.getKey(), project);
+						JiraProject jiraProject = new JiraProject();
+						jiraProject.setAtividades(Arrays.asList(jiraissues));
+						jiraProject.setProject(issue.getProject().getName());
+						jiraProject.setId(issue.getProject().getId());
+						jiraProject.setKey(issue.getProject().getKey());
+						jiraProject.setDataCreate(issue.getCreationDate().toDate());
+						projects.put(jiraProject.getKey(), jiraProject);
 					}
 				}
 			}
 		}
-		return projects;
+		return new ArrayList<JiraProject>(projects.values());
 	}
 }
